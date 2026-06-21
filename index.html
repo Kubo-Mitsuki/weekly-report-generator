@@ -394,12 +394,12 @@ function buildTab(containerId, prefix) {
   for (let i = 0; i < 7; i++) html += `<input type="text" id="${prefix}-h${i}">`;
   html += '</div>';
 
+  html += `<div class="section-title sec-goal-title">${t('goals')}</div>`;
   html += `<div class="carry-row">
     <span class="carry-label">${t('carry_label')}</span>
     <button class="btn-carry btn-carry-move" onclick="carryGoals('move')">${t('carry_move')}</button>
     <button class="btn-carry btn-carry-copy" onclick="carryGoals('copy')">${t('carry_copy')}</button>
   </div>`;
-  html += `<div class="section-title sec-goal-title">${t('goals')}</div>`;
   html += '<table class="goals-table"><thead><tr>';
   html += `<th class="col-goal th-goal">${t('col_goal')}</th>`;
   html += `<th class="col-ach th-ach">${t('col_ach')}</th>`;
