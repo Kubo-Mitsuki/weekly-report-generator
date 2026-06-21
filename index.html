@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>週報スライド生成</title>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<style>
+:root {
+  --bg: #0f172a;
+  --surface: #1e293b;
+  --surface2: #334155;
+  --border: #475569;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --success: #22c55e;
+  --success-hover: #16a34a;
+  --danger: #ef4444;
+  --input-bg: #1e293b;
+  --tab-active: #3b82f6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', 'Yu Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 16px;
+}
+.container { max-width: 900px; margin: 0 auto; }
+h1 { font-size: 1.3rem; margin-bottom: 12px; font-weight: 600; }
+
+.row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+label { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+input, select, textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+}
+select { cursor: pointer; }
+
+.field { display: flex; align-items: center; gap: 6px; }
+.field input[type="text"] { width: 140px; }
+.field input.short { width: 80px; }
+.field select.short { width: 90px; }
+.field input.date { width: 120px; }
+
+.tabs { display: flex; gap: 0; margin-top: 12px; }
+.tab-btn {
+  padding: 8px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--tab-active);
+  border-bottom: 2px solid var(--surface2);
+}
+.tab-content {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0 6px 6px 6px;
+  padding: 12px;
+}
+.tab-content.active { display: block; }
+
+.section-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.att-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.att-grid .att-date {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding: 2px;
+}
+.att-grid input {
+  width: 100%;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 4px;
+}
+
+.goals-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+.goals-table th {
+  background: var(--surface);
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.goals-table td {
+  padding: 2px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+.goals-table textarea { width: 100%; border: none; resize: vertical; min-height: 48px; }
+.goals-table input { width: 100%; border: none; text-align: center; }
+.goals-table .col-goal { width: 33%; }
+.goals-table .col-ach { width: 13%; }
+.goals-table .col-sum { width: 54%; }
+
+.others-table { width: 100%; border-collapse: collapse; }
+.others-table th {
+  background: var(--surface);
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.others-table td { padding: 2px; border: 1px solid var(--border); }
+.others-table textarea { width: 100%; border: none; resize: vertical; min-height: 40px; }
+
+.btn-row { display: flex; justify-content: flex-end; margin-top: 12px; gap: 8px; }
+button.gen {
+  background: var(--success);
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+button.gen:hover { background: var(--success-hover); }
+button.gen:active { transform: scale(0.97); }
+
+.status {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  min-height: 1.2em;
+}
+.status.ok { color: var(--success); }
+.status.err { color: var(--danger); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1 id="title">週報スライド生成</h1>
+
+  <div class="row">
+    <div class="field">
+      <label id="lbl-grade">学年</label>
+      <input type="text" id="grade" list="grade-list" class="short" value="B4">
+      <datalist id="grade-list">
+        <option value="B4"><option value="M1"><option value="M2">
+        <option value="D1"><option value="D2"><option value="D3">
+        <option value="Re"><option value="Ts">
+      </datalist>
+    </div>
+    <div class="field">
+      <label id="lbl-name-ja">名前(漢字)</label>
+      <input type="text" id="name-ja">
+    </div>
+    <div class="field">
+      <label id="lbl-name-en">ローマ字</label>
+      <input type="text" id="name-en">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label id="lbl-date">基準日</label>
+      <input type="text" id="base-date" class="date" placeholder="2026/06/17">
+    </div>
+    <div class="field">
+      <label id="lbl-lang">言語 (Lang)</label>
+      <select id="lang-select" class="short">
+        <option value="ja">日本語</option>
+        <option value="zh">中文</option>
+        <option value="ko">한국어</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab-btn active" data-tab="last" id="tab-btn-last">先週（スライド1）</div>
+    <div class="tab-btn" data-tab="this" id="tab-btn-this">今週（スライド2）</div>
+  </div>
+
+  <div class="tab-content active" id="tab-last"></div>
+  <div class="tab-content" id="tab-this"></div>
+
+  <div class="btn-row">
+    <button class="gen" id="btn-gen" onclick="generate()">生成</button>
+  </div>
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+// ── i18n ──
+const T = {
+  ja: {
+    title:"週報スライド生成", grade:"学年", name_ja:"名前(漢字)", name_en:"ローマ字",
+    base_date:"基準日", lang:"言語 (Lang)",
+    tab_last:"先週（スライド1）", tab_this:"今週（スライド2）",
+    attendance:"在室時間", goals:"目標（最大4件）",
+    col_goal:"目標", col_ach:"達成度", col_sum:"概要",
+    others:"その他取り組むこと（最大4件）",
+    btn_gen:"生成", generated:"生成完了: {}", err_input:"入力エラー"
+  },
+  zh: {
+    title:"周报幻灯片生成", grade:"年级", name_ja:"姓名(汉字)", name_en:"罗马字",
+    base_date:"基准日", lang:"语言 (Lang)",
+    tab_last:"上周（幻灯片1）", tab_this:"本周（幻灯片2）",
+    attendance:"在室时间", goals:"目标（最多4项）",
+    col_goal:"目标", col_ach:"完成度", col_sum:"概要",
+    others:"其他工作（最多4项）",
+    btn_gen:"生成", generated:"已生成: {}", err_input:"输入错误"
+  },
+  ko: {
+    title:"주간보고 슬라이드 생성", grade:"학년", name_ja:"이름(한자)", name_en:"로마자",
+    base_date:"기준일", lang:"언어 (Lang)",
+    tab_last:"지난주（슬라이드1）", tab_this:"이번주（슬라이드2）",
+    attendance:"재실시간", goals:"목표（최대 4건）",
+    col_goal:"목표", col_ach:"달성도", col_sum:"개요",
+    others:"기타 작업（최대 4건）",
+    btn_gen:"생성", generated:"생성: {}", err_input:"입력 오류"
+  },
+  en: {
+    title:"Weekly Report Generator", grade:"Grade", name_ja:"Name (Kanji)", name_en:"Romaji",
+    base_date:"Base Date", lang:"Lang",
+    tab_last:"Last Week (Slide 1)", tab_this:"This Week (Slide 2)",
+    attendance:"Hours Present", goals:"Goals (max 4)",
+    col_goal:"Goal", col_ach:"Progress", col_sum:"Summary",
+    others:"Other Tasks (max 4)",
+    btn_gen:"Generate", generated:"Generated: {}", err_input:"Input Error"
+  }
+};
+
+let currentLang = 'ja';
+
+function t(key) { return T[currentLang][key]; }
+
+function applyLang() {
+  const l = T[currentLang];
+  document.getElementById('title').textContent = l.title;
+  document.title = l.title;
+  document.getElementById('lbl-grade').textContent = l.grade;
+  document.getElementById('lbl-name-ja').textContent = l.name_ja;
+  document.getElementById('lbl-name-en').textContent = l.name_en;
+  document.getElementById('lbl-date').textContent = l.base_date;
+  document.getElementById('lbl-lang').textContent = l.lang;
+  document.getElementById('tab-btn-last').textContent = l.tab_last;
+  document.getElementById('tab-btn-this').textContent = l.tab_this;
+  document.getElementById('btn-gen').textContent = l.btn_gen;
+  document.querySelectorAll('.sec-att-title').forEach(e => e.textContent = l.attendance);
+  document.querySelectorAll('.sec-goal-title').forEach(e => e.textContent = l.goals);
+  document.querySelectorAll('.sec-other-title').forEach(e => e.textContent = l.others);
+  document.querySelectorAll('.th-goal').forEach(e => e.textContent = l.col_goal);
+  document.querySelectorAll('.th-ach').forEach(e => e.textContent = l.col_ach);
+  document.querySelectorAll('.th-sum').forEach(e => e.textContent = l.col_sum);
+}
+
+// ── Date helpers ──
+function nextTuesday() {
+  const d = new Date();
+  const day = d.getDay(); // 0=Sun
+  let diff = (2 - day + 7) % 7;
+  if (diff === 0) diff = 0; // today is Tuesday → use today
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function parseDate(s) {
+  const parts = s.replace(/-/g, '/').split('/');
+  if (parts.length !== 3) return null;
+  const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function fmtDate(d) {
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtMD(d) {
+  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function weekDates(base, before) {
+  const dates = [];
+  for (let i = before ? -7 : 1; i <= (before ? -1 : 7); i++) {
+    const d = new Date(base);
+    d.setDate(d.getDate() + i);
+    dates.push(fmtMD(d));
+  }
+  return dates;
+}
+
+function updateDates() {
+  const base = parseDate(document.getElementById('base-date').value);
+  if (!base) return;
+  const last = weekDates(base, true);
+  const this_ = weekDates(base, false);
+  document.querySelectorAll('#tab-last .att-date').forEach((el, i) => el.textContent = last[i] || '');
+  document.querySelectorAll('#tab-this .att-date').forEach((el, i) => el.textContent = this_[i] || '');
+}
+
+// ── Build tab content ──
+function buildTab(containerId, prefix) {
+  const container = document.getElementById(containerId);
+  let html = `<div class="section-title sec-att-title">${t('attendance')}</div>`;
+  html += '<div class="att-grid">';
+  for (let i = 0; i < 7; i++) html += `<div class="att-date">--/--</div>`;
+  for (let i = 0; i < 7; i++) html += `<input type="text" id="${prefix}-h${i}">`;
+  html += '</div>';
+
+  html += `<div class="section-title sec-goal-title">${t('goals')}</div>`;
+  html += '<table class="goals-table"><thead><tr>';
+  html += `<th class="col-goal th-goal">${t('col_goal')}</th>`;
+  html += `<th class="col-ach th-ach">${t('col_ach')}</th>`;
+  html += `<th class="col-sum th-sum">${t('col_sum')}</th>`;
+  html += '</tr></thead><tbody>';
+  for (let i = 0; i < 4; i++) {
+    html += '<tr>';
+    html += `<td><textarea id="${prefix}-g${i}"></textarea></td>`;
+    html += `<td><input type="text" id="${prefix}-a${i}"></td>`;
+    html += `<td><textarea id="${prefix}-s${i}"></textarea></td>`;
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+
+  html += `<div class="section-title sec-other-title">${t('others')}</div>`;
+  html += '<table class="others-table"><thead><tr>';
+  html += `<th class="th-sum">${t('col_sum')}</th>`;
+  html += '</tr></thead><tbody>';
+  for (let i = 0; i < 4; i++) {
+    html += `<tr><td><textarea id="${prefix}-o${i}"></textarea></td></tr>`;
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// ── Tabs ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Auto-save (localStorage) ──
+const STORAGE_KEY = 'pptx_gen_autosave';
+
+function collectData() {
+  const data = {
+    grade: document.getElementById('grade').value.trim(),
+    name_ja: document.getElementById('name-ja').value.trim(),
+    name_en: document.getElementById('name-en').value.trim(),
+    date: document.getElementById('base-date').value.trim(),
+    lang: currentLang,
+    last_week: collectWeek('lw'),
+    this_week: collectWeek('tw'),
+  };
+  return data;
+}
+
+function collectWeek(prefix) {
+  const hours = [];
+  for (let i = 0; i < 7; i++) hours.push(document.getElementById(`${prefix}-h${i}`).value.trim());
+  const goals = [];
+  for (let i = 0; i < 4; i++) {
+    const g = document.getElementById(`${prefix}-g${i}`).value.trim();
+    if (g) goals.push({
+      goal: g,
+      achievement: document.getElementById(`${prefix}-a${i}`).value.trim(),
+      summary: document.getElementById(`${prefix}-s${i}`).value.trim()
+    });
+  }
+  const others = [];
+  for (let i = 0; i < 4; i++) {
+    const s = document.getElementById(`${prefix}-o${i}`).value.trim();
+    if (s) others.push({ summary: s });
+  }
+  return { hours, goals, others };
+}
+
+function autoSave() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(collectData())); } catch(e) {}
+}
+
+function autoLoad() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.grade) document.getElementById('grade').value = data.grade;
+    if (data.name_ja) document.getElementById('name-ja').value = data.name_ja;
+    if (data.name_en) document.getElementById('name-en').value = data.name_en;
+    if (data.lang && T[data.lang]) {
+      currentLang = data.lang;
+      document.getElementById('lang-select').value = data.lang;
+      applyLang();
+    }
+    if (data.last_week) fillWeek('lw', data.last_week);
+    if (data.this_week) fillWeek('tw', data.this_week);
+    setStatus(t('generated').replace('{}', '前回の入力を復元しました'), '');
+  } catch(e) {}
+}
+
+function fillWeek(prefix, sec) {
+  const hours = sec.hours || [];
+  for (let i = 0; i < 7; i++) {
+    const el = document.getElementById(`${prefix}-h${i}`);
+    if (el) el.value = hours[i] || '';
+  }
+  const goals = sec.goals || [];
+  for (let i = 0; i < 4; i++) {
+    const g = goals[i] || {};
+    document.getElementById(`${prefix}-g${i}`).value = g.goal || '';
+    document.getElementById(`${prefix}-a${i}`).value = g.achievement || '';
+    document.getElementById(`${prefix}-s${i}`).value = g.summary || '';
+  }
+  const others = sec.others || [];
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`${prefix}-o${i}`).value = (others[i] || {}).summary || '';
+  }
+}
+
+function setStatus(msg, cls) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (cls ? ' ' + cls : '');
+}
+
+// ── PPTX Generation ──
+// Slide: 13.33 x 7.50 inches (widescreen 16:9)
+// Layout from template analysis:
+//   Name box: left=0.28, top=0.53, w=2.86, h=0.87
+//   Date box: left=0.30, top=0.21, w=1.01, h=0.44
+//   Attendance table (ID=7): left=3.28, top=0.28, w=9.76, h=0.94, 2r x 8c
+//   Section label (ID=3): left=0.28, top=1.47
+//   Goals table (ID=4): left=0.28, top=2.28, w=8.96, h=4.94, 5r x 3c
+//   Others label (ID=21): left=9.53, top=1.47
+//   Others table (ID=19): left=9.52, top=2.28, w=3.54, h=4.94, 5r x 1c
+
+const FONT = 'Yu Gothic';
+const ACCENT1 = '156082';
+const ACCENT3 = '196B24';
+
+function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, othersLabel) {
+  const slide = pptx.addSlide();
+
+  // Date label (top-left)
+  slide.addText(dateLabel, {
+    x: 0.30, y: 0.21, w: 1.01, h: 0.44,
+    fontSize: 20, bold: true, fontFace: FONT, color: '000000'
+  });
+
+  // Name (2 lines)
+  slide.addText([
+    { text: nameJa, options: { fontSize: 20, bold: true, fontFace: FONT, breakType: 'none' } },
+    { text: nameEn, options: { fontSize: 20, bold: true, fontFace: FONT, breakType: 'none' } }
+  ], { x: 0.28, y: 0.53, w: 2.86, h: 0.87, color: '000000' });
+
+  // Attendance table
+  const attRows = [
+    [{ text: 'Date', options: { bold: true, fontSize: 9 } }],
+    [{ text: '在室時間', options: { bold: true, fontSize: 9 } }]
+  ];
+  for (let i = 0; i < 7; i++) {
+    attRows[0].push({ text: dates[i] || '', options: { fontSize: 9 } });
+    attRows[1].push({ text: (sec.hours[i] || ''), options: { fontSize: 9 } });
+  }
+  slide.addTable(attRows, {
+    x: 3.28, y: 0.28, w: 9.76,
+    fontFace: FONT,
+    color: '000000',
+    border: { type: 'solid', pt: 0.5, color: '999999' },
+    colW: [1.22, 1.22, 1.22, 1.22, 1.22, 1.22, 1.22, 1.22],
+    rowH: [0.38, 0.38],
+    autoPage: false
+  });
+
+  // Section label: goals
+  slide.addText([
+    { text: slideLabel, options: { fontSize: 18, fontFace: FONT, color: '333333' } }
+  ], { x: 0.28, y: 1.47, w: 8.96, h: 0.82, valign: 'middle' });
+
+  // Goals table
+  const goalRows = [
+    [
+      { text: '目標', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 10 } },
+      { text: '達成度', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 10 } },
+      { text: '概要', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 10 } }
+    ]
+  ];
+  for (let i = 0; i < 4; i++) {
+    const g = (sec.goals && sec.goals[i]) || {};
+    goalRows.push([
+      { text: g.goal || '', options: { fontSize: 10 } },
+      { text: g.achievement || '', options: { fontSize: 10, align: 'center' } },
+      { text: g.summary || '', options: { fontSize: 10 } }
+    ]);
+  }
+  slide.addTable(goalRows, {
+    x: 0.28, y: 2.28, w: 8.96,
+    fontFace: FONT,
+    color: '000000',
+    border: { type: 'solid', pt: 0.5, color: '999999' },
+    colW: [2.99, 1.21, 4.76],
+    rowH: [0.35, 1.15, 1.15, 1.15, 1.15],
+    autoPage: false
+  });
+
+  // Section label: others
+  slide.addText([
+    { text: othersLabel, options: { fontSize: 18, fontFace: FONT, color: '333333' } }
+  ], { x: 9.53, y: 1.47, w: 3.51, h: 0.82, valign: 'middle' });
+
+  // Others table
+  const otherRows = [
+    [{ text: '概要', options: { bold: true, fill: { color: ACCENT3 }, color: 'FFFFFF', fontSize: 10 } }]
+  ];
+  for (let i = 0; i < 4; i++) {
+    const o = (sec.others && sec.others[i]) || {};
+    otherRows.push([
+      { text: o.summary || '', options: { fontSize: 10 } }
+    ]);
+  }
+  slide.addTable(otherRows, {
+    x: 9.52, y: 2.28, w: 3.54,
+    fontFace: FONT,
+    color: '000000',
+    border: { type: 'solid', pt: 0.5, color: '999999' },
+    colW: [3.54],
+    rowH: [0.35, 1.15, 1.15, 1.15, 1.15],
+    autoPage: false
+  });
+}
+
+function generate() {
+  const data = collectData();
+  autoSave();
+
+  // Validate
+  if (!data.name_ja) { setStatus(t('err_input') + ': name_ja', 'err'); return; }
+  if (!data.name_en) { setStatus(t('err_input') + ': name_en', 'err'); return; }
+  const base = parseDate(data.date);
+  if (!base) { setStatus(t('err_input') + ': date', 'err'); return; }
+
+  const dateLabel = fmtMD(base);
+  const lastDates = weekDates(base, true);
+  const thisDates = weekDates(base, false);
+
+  const pptx = new PptxGenJS();
+  pptx.layout = 'LAYOUT_WIDE'; // 13.33 x 7.5
+
+  buildSlide(pptx, data.name_ja, data.name_en, dateLabel, lastDates, data.last_week,
+    '先週の目標とその進捗\nLast week\'s goals and progress',
+    'その他取り組むこと\nWhat else I will do');
+  buildSlide(pptx, data.name_ja, data.name_en, dateLabel, thisDates, data.this_week,
+    '今週の目標とその進捗\nThis week\'s goals and progress',
+    'その他取り組むこと\nWhat else I will do');
+
+  const prefix = data.grade ? `${data.grade}_${data.name_ja}` : data.name_ja;
+  const filename = prefix.replace(/[\\/:*?"<>|\s]+/g, '_');
+
+  pptx.writeFile({ fileName: `${filename}.pptx` })
+    .then(() => setStatus(t('generated').replace('{}', `${filename}.pptx`), 'ok'))
+    .catch(err => setStatus(String(err), 'err'));
+}
+
+// ── Lang change ──
+document.getElementById('lang-select').addEventListener('change', (e) => {
+  currentLang = e.target.value;
+  applyLang();
+});
+
+// ── Date change ──
+document.getElementById('base-date').addEventListener('change', updateDates);
+document.getElementById('base-date').addEventListener('blur', updateDates);
+
+// ── Auto-save on unload ──
+window.addEventListener('beforeunload', autoSave);
+
+// ── Init ──
+buildTab('tab-last', 'lw');
+buildTab('tab-this', 'tw');
+
+const tue = nextTuesday();
+document.getElementById('base-date').value = fmtDate(tue);
+
+autoLoad();
+updateDates();
+</script>
+</body>
+</html>
