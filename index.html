@@ -330,9 +330,9 @@ function applyLang() {
   document.getElementById('tab-btn-last').textContent = l.tab_last;
   document.getElementById('tab-btn-this').textContent = l.tab_this;
   document.getElementById('btn-gen').textContent = l.btn_gen;
-  document.getElementById('lbl-carry').textContent = l.carry_label;
-  document.getElementById('btn-carry-move').textContent = l.carry_move;
-  document.getElementById('btn-carry-copy').textContent = l.carry_copy;
+  document.querySelectorAll('.carry-label').forEach(e => e.textContent = l.carry_label);
+  document.querySelectorAll('.btn-carry-move').forEach(e => e.textContent = l.carry_move);
+  document.querySelectorAll('.btn-carry-copy').forEach(e => e.textContent = l.carry_copy);
   document.querySelectorAll('.sec-att-title').forEach(e => e.textContent = l.attendance);
   document.querySelectorAll('.sec-goal-title').forEach(e => e.textContent = l.goals);
   document.querySelectorAll('.sec-other-title').forEach(e => e.textContent = l.others);
@@ -394,13 +394,11 @@ function buildTab(containerId, prefix) {
   for (let i = 0; i < 7; i++) html += `<input type="text" id="${prefix}-h${i}">`;
   html += '</div>';
 
-  if (prefix === 'tw') {
-    html += `<div class="carry-row">
-      <span class="carry-label" id="lbl-carry">${t('carry_label')}</span>
-      <button class="btn-carry" id="btn-carry-move" onclick="carryGoals('move')">${t('carry_move')}</button>
-      <button class="btn-carry" id="btn-carry-copy" onclick="carryGoals('copy')">${t('carry_copy')}</button>
-    </div>`;
-  }
+  html += `<div class="carry-row">
+    <span class="carry-label">${t('carry_label')}</span>
+    <button class="btn-carry btn-carry-move" onclick="carryGoals('move')">${t('carry_move')}</button>
+    <button class="btn-carry btn-carry-copy" onclick="carryGoals('copy')">${t('carry_copy')}</button>
+  </div>`;
   html += `<div class="section-title sec-goal-title">${t('goals')}</div>`;
   html += '<table class="goals-table"><thead><tr>';
   html += `<th class="col-goal th-goal">${t('col_goal')}</th>`;
