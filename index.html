@@ -157,8 +157,29 @@ button.gen {
 }
 button.gen:hover { background: var(--success-hover); }
 button.gen:active { transform: scale(0.97); }
-button.gen.carry { background: var(--accent); font-size: 0.85rem; padding: 10px 16px; }
-button.gen.carry:hover { background: var(--accent-hover); }
+.carry-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.carry-label { font-size: 0.85rem; color: var(--text-muted); margin-right: 4px; }
+.btn-carry {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-carry:hover { background: var(--accent-hover); }
+.btn-carry:active { transform: scale(0.97); }
 
 .status {
   margin-top: 8px;
@@ -218,10 +239,13 @@ button.gen.carry:hover { background: var(--accent-hover); }
   <div class="tab-content active" id="tab-last"></div>
   <div class="tab-content" id="tab-this"></div>
 
+  <div class="carry-row">
+    <span class="carry-label" id="lbl-carry">目標の引き継ぎ:</span>
+    <button class="btn-carry" id="btn-carry-move" onclick="carryGoals('move')">今週の目標を先週へ移動</button>
+    <button class="btn-carry" id="btn-carry-copy" onclick="carryGoals('copy')">今週の目標を先週へコピー</button>
+  </div>
   <div class="btn-row">
-    <button class="gen carry" id="btn-carry" onclick="generate('carry')">出力 + 次週の目標を引き継ぎ</button>
-    <button class="gen carry" id="btn-carry-both" onclick="generate('carry_both')">出力 + 両週の目標を引き継ぎ</button>
-    <button class="gen" id="btn-gen" onclick="generate('none')">出力</button>
+    <button class="gen" id="btn-gen" onclick="generate()">出力</button>
   </div>
   <div class="status" id="status"></div>
 </div>
@@ -236,7 +260,13 @@ const T = {
     attendance:"在室時間", goals:"目標（最大4件）",
     col_goal:"目標", col_ach:"達成度", col_sum:"概要",
     others:"その他取り組むこと（最大4件）",
-    btn_gen:"出力", btn_carry:"出力 + 次週の目標を引き継ぎ", btn_carry_both:"出力 + 両週の目標を引き継ぎ",
+    btn_gen:"出力",
+    carry_label:"目標の引き継ぎ:",
+    carry_move:"今週の目標を先週へ移動",
+    carry_copy:"今週の目標を先週へコピー",
+    carry_confirm:"先週欄に既に内容があります。上書きしますか？",
+    carry_done_move:"今週の目標を先週へ移動しました",
+    carry_done_copy:"今週の目標を先週へコピーしました",
     generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
@@ -246,7 +276,13 @@ const T = {
     attendance:"在室时间", goals:"目标（最多4项）",
     col_goal:"目标", col_ach:"完成度", col_sum:"概要",
     others:"其他工作（最多4项）",
-    btn_gen:"输出", btn_carry:"输出 + 本周目标延续到下周", btn_carry_both:"输出 + 两周都延续",
+    btn_gen:"输出",
+    carry_label:"目标延续:",
+    carry_move:"将本周目标移动到上周",
+    carry_copy:"将本周目标复制到上周",
+    carry_confirm:"上周栏已有内容。要覆盖吗？",
+    carry_done_move:"已将本周目标移动到上周",
+    carry_done_copy:"已将本周目标复制到上周",
     generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
@@ -256,7 +292,13 @@ const T = {
     attendance:"재실시간", goals:"목표（최대 4건）",
     col_goal:"목표", col_ach:"달성도", col_sum:"개요",
     others:"기타 작업（최대 4건）",
-    btn_gen:"출력", btn_carry:"출력 + 이번주 목표를 다음주로", btn_carry_both:"출력 + 양쪽 모두로",
+    btn_gen:"출력",
+    carry_label:"목표 인계:",
+    carry_move:"이번주 목표를 지난주로 이동",
+    carry_copy:"이번주 목표를 지난주로 복사",
+    carry_confirm:"지난주 칸에 이미 내용이 있습니다. 덮어쓰시겠습니까?",
+    carry_done_move:"이번주 목표를 지난주로 이동했습니다",
+    carry_done_copy:"이번주 목표를 지난주로 복사했습니다",
     generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
@@ -266,7 +308,13 @@ const T = {
     attendance:"Hours Present", goals:"Goals (max 4)",
     col_goal:"Goal", col_ach:"Progress", col_sum:"Summary",
     others:"Other Tasks (max 4)",
-    btn_gen:"Output", btn_carry:"Output + Carry goals to next week", btn_carry_both:"Output + Carry to both",
+    btn_gen:"Output",
+    carry_label:"Carry goals:",
+    carry_move:"Move this week's goals to last week",
+    carry_copy:"Copy this week's goals to last week",
+    carry_confirm:"Last week column has content. Overwrite?",
+    carry_done_move:"Moved this week's goals to last week",
+    carry_done_copy:"Copied this week's goals to last week",
     generated:"Output: {}", err_input:"Input Error"
   }
 };
@@ -287,8 +335,9 @@ function applyLang() {
   document.getElementById('tab-btn-last').textContent = l.tab_last;
   document.getElementById('tab-btn-this').textContent = l.tab_this;
   document.getElementById('btn-gen').textContent = l.btn_gen;
-  document.getElementById('btn-carry').textContent = l.btn_carry;
-  document.getElementById('btn-carry-both').textContent = l.btn_carry_both;
+  document.getElementById('lbl-carry').textContent = l.carry_label;
+  document.getElementById('btn-carry-move').textContent = l.carry_move;
+  document.getElementById('btn-carry-copy').textContent = l.carry_copy;
   document.querySelectorAll('.sec-att-title').forEach(e => e.textContent = l.attendance);
   document.querySelectorAll('.sec-goal-title').forEach(e => e.textContent = l.goals);
   document.querySelectorAll('.sec-other-title').forEach(e => e.textContent = l.others);
@@ -582,26 +631,46 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
   });
 }
 
-function generate(mode) {
-  mode = mode || 'none';
+// ── Carry over goals ──
+function hasGoalsInLastWeek() {
+  for (let i = 0; i < 4; i++) {
+    if (document.getElementById(`lw-g${i}`).value.trim()) return true;
+  }
+  return false;
+}
+
+function carryGoals(mode) {
+  if (hasGoalsInLastWeek()) {
+    if (!confirm(t('carry_confirm'))) return;
+  }
+  // Copy this week's goals → last week
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`lw-g${i}`).value = document.getElementById(`tw-g${i}`).value;
+    document.getElementById(`lw-a${i}`).value = document.getElementById(`tw-a${i}`).value;
+    document.getElementById(`lw-s${i}`).value = document.getElementById(`tw-s${i}`).value;
+  }
+  if (mode === 'move') {
+    for (let i = 0; i < 4; i++) {
+      document.getElementById(`tw-g${i}`).value = '';
+      document.getElementById(`tw-a${i}`).value = '';
+      document.getElementById(`tw-s${i}`).value = '';
+    }
+    setStatus(t('carry_done_move'), 'ok');
+  } else {
+    setStatus(t('carry_done_copy'), 'ok');
+  }
+  autoSave();
+}
+
+function generate() {
   const data = collectData();
+  autoSave();
 
   // Validate
   if (!data.name_ja) { setStatus(t('err_input') + ': name_ja', 'err'); return; }
   if (!data.name_en) { setStatus(t('err_input') + ': name_en', 'err'); return; }
   const base = parseDate(data.date);
   if (!base) { setStatus(t('err_input') + ': date', 'err'); return; }
-
-  // Carry-over: rewrite localStorage so next session restores the chosen goals layout
-  const saveData = JSON.parse(JSON.stringify(data));
-  if (mode === 'carry') {
-    saveData.last_week.goals = data.this_week.goals;
-    saveData.this_week.goals = [];
-  } else if (mode === 'carry_both') {
-    saveData.last_week.goals = data.this_week.goals;
-    saveData.this_week.goals = data.this_week.goals;
-  }
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData)); } catch(e) {}
 
   const dateLabel = fmtMD(base);
   const lastDates = weekDates(base, true);
