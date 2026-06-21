@@ -157,6 +157,8 @@ button.gen {
 }
 button.gen:hover { background: var(--success-hover); }
 button.gen:active { transform: scale(0.97); }
+button.gen.carry { background: var(--accent); font-size: 0.85rem; padding: 10px 16px; }
+button.gen.carry:hover { background: var(--accent-hover); }
 
 .status {
   margin-top: 8px;
@@ -217,7 +219,9 @@ button.gen:active { transform: scale(0.97); }
   <div class="tab-content" id="tab-this"></div>
 
   <div class="btn-row">
-    <button class="gen" id="btn-gen" onclick="generate()">生成</button>
+    <button class="gen carry" id="btn-carry" onclick="generate('carry')">出力 + 次週の目標を引き継ぎ</button>
+    <button class="gen carry" id="btn-carry-both" onclick="generate('carry_both')">出力 + 両週の目標を引き継ぎ</button>
+    <button class="gen" id="btn-gen" onclick="generate('none')">出力</button>
   </div>
   <div class="status" id="status"></div>
 </div>
@@ -232,7 +236,8 @@ const T = {
     attendance:"在室時間", goals:"目標（最大4件）",
     col_goal:"目標", col_ach:"達成度", col_sum:"概要",
     others:"その他取り組むこと（最大4件）",
-    btn_gen:"生成", generated:"生成完了: {}", err_input:"入力エラー"
+    btn_gen:"出力", btn_carry:"出力 + 次週の目標を引き継ぎ", btn_carry_both:"出力 + 両週の目標を引き継ぎ",
+    generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
     title:"周报幻灯片生成", grade:"年级", name_ja:"姓名(汉字)", name_en:"罗马字",
@@ -241,7 +246,8 @@ const T = {
     attendance:"在室时间", goals:"目标（最多4项）",
     col_goal:"目标", col_ach:"完成度", col_sum:"概要",
     others:"其他工作（最多4项）",
-    btn_gen:"生成", generated:"已生成: {}", err_input:"输入错误"
+    btn_gen:"输出", btn_carry:"输出 + 本周目标延续到下周", btn_carry_both:"输出 + 两周都延续",
+    generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
     title:"주간보고 슬라이드 생성", grade:"학년", name_ja:"이름(한자)", name_en:"로마자",
@@ -250,7 +256,8 @@ const T = {
     attendance:"재실시간", goals:"목표（최대 4건）",
     col_goal:"목표", col_ach:"달성도", col_sum:"개요",
     others:"기타 작업（최대 4건）",
-    btn_gen:"생성", generated:"생성: {}", err_input:"입력 오류"
+    btn_gen:"출력", btn_carry:"출력 + 이번주 목표를 다음주로", btn_carry_both:"출력 + 양쪽 모두로",
+    generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
     title:"Weekly Report Generator", grade:"Grade", name_ja:"Name (Kanji)", name_en:"Romaji",
@@ -259,7 +266,8 @@ const T = {
     attendance:"Hours Present", goals:"Goals (max 4)",
     col_goal:"Goal", col_ach:"Progress", col_sum:"Summary",
     others:"Other Tasks (max 4)",
-    btn_gen:"Generate", generated:"Generated: {}", err_input:"Input Error"
+    btn_gen:"Output", btn_carry:"Output + Carry goals to next week", btn_carry_both:"Output + Carry to both",
+    generated:"Output: {}", err_input:"Input Error"
   }
 };
 
@@ -279,6 +287,8 @@ function applyLang() {
   document.getElementById('tab-btn-last').textContent = l.tab_last;
   document.getElementById('tab-btn-this').textContent = l.tab_this;
   document.getElementById('btn-gen').textContent = l.btn_gen;
+  document.getElementById('btn-carry').textContent = l.btn_carry;
+  document.getElementById('btn-carry-both').textContent = l.btn_carry_both;
   document.querySelectorAll('.sec-att-title').forEach(e => e.textContent = l.attendance);
   document.querySelectorAll('.sec-goal-title').forEach(e => e.textContent = l.goals);
   document.querySelectorAll('.sec-other-title').forEach(e => e.textContent = l.others);
@@ -474,6 +484,10 @@ function setStatus(msg, cls) {
 const FONT = 'Yu Gothic';
 const ACCENT1 = '156082';
 const ACCENT3 = '196B24';
+const BAND_BLUE_DARK = 'D0DCE5';
+const BAND_BLUE_LIGHT = 'E8EEF2';
+const BAND_GREEN_DARK = 'D1DFD3';
+const BAND_GREEN_LIGHT = 'E8EFE9';
 
 function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, othersLabel) {
   const slide = pptx.addSlide();
@@ -492,12 +506,12 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
 
   // Attendance table
   const attRows = [
-    [{ text: 'Date', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF' } }],
-    [{ text: '在室時間', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF' } }]
+    [{ text: 'Date', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF', align: 'center', valign: 'middle' } }],
+    [{ text: '在室時間', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF', align: 'center', valign: 'middle' } }]
   ];
   for (let i = 0; i < 7; i++) {
-    attRows[0].push({ text: dates[i] || '', options: { fontSize: 18 } });
-    attRows[1].push({ text: (sec.hours[i] || ''), options: { fontSize: 18 } });
+    attRows[0].push({ text: dates[i] || '', options: { fontSize: 18, align: 'center', valign: 'middle' } });
+    attRows[1].push({ text: (sec.hours[i] || ''), options: { fontSize: 18, align: 'center', valign: 'middle' } });
   }
   slide.addTable(attRows, {
     x: 3.28, y: 0.28, w: 9.76,
@@ -517,17 +531,18 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
   // Goals table
   const goalRows = [
     [
-      { text: '目標', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18 } },
-      { text: '達成度', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18 } },
-      { text: '概要', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18 } }
+      { text: '目標', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18, align: 'center', valign: 'middle' } },
+      { text: '達成度', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18, align: 'center', valign: 'middle' } },
+      { text: '概要', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18, align: 'center', valign: 'middle' } }
     ]
   ];
   for (let i = 0; i < 4; i++) {
     const g = (sec.goals && sec.goals[i]) || {};
+    const band = i % 2 === 0 ? BAND_BLUE_DARK : BAND_BLUE_LIGHT;
     goalRows.push([
-      { text: g.goal || '', options: { fontSize: 18 } },
-      { text: g.achievement || '', options: { fontSize: 18, align: 'center' } },
-      { text: g.summary || '', options: { fontSize: 18 } }
+      { text: g.goal || '', options: { fontSize: 18, fill: { color: band }, valign: 'middle' } },
+      { text: g.achievement || '', options: { fontSize: 18, align: 'center', valign: 'middle', fill: { color: band } } },
+      { text: g.summary || '', options: { fontSize: 18, fill: { color: band }, valign: 'middle' } }
     ]);
   }
   slide.addTable(goalRows, {
@@ -547,12 +562,13 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
 
   // Others table
   const otherRows = [
-    [{ text: '概要', options: { bold: true, fill: { color: ACCENT3 }, color: 'FFFFFF', fontSize: 18 } }]
+    [{ text: '概要', options: { bold: true, fill: { color: ACCENT3 }, color: 'FFFFFF', fontSize: 18, align: 'center', valign: 'middle' } }]
   ];
   for (let i = 0; i < 4; i++) {
     const o = (sec.others && sec.others[i]) || {};
+    const band = i % 2 === 0 ? BAND_GREEN_DARK : BAND_GREEN_LIGHT;
     otherRows.push([
-      { text: o.summary || '', options: { fontSize: 18 } }
+      { text: o.summary || '', options: { fontSize: 18, fill: { color: band }, valign: 'middle' } }
     ]);
   }
   slide.addTable(otherRows, {
@@ -566,15 +582,26 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
   });
 }
 
-function generate() {
+function generate(mode) {
+  mode = mode || 'none';
   const data = collectData();
-  autoSave();
 
   // Validate
   if (!data.name_ja) { setStatus(t('err_input') + ': name_ja', 'err'); return; }
   if (!data.name_en) { setStatus(t('err_input') + ': name_en', 'err'); return; }
   const base = parseDate(data.date);
   if (!base) { setStatus(t('err_input') + ': date', 'err'); return; }
+
+  // Carry-over: rewrite localStorage so next session restores the chosen goals layout
+  const saveData = JSON.parse(JSON.stringify(data));
+  if (mode === 'carry') {
+    saveData.last_week.goals = data.this_week.goals;
+    saveData.this_week.goals = [];
+  } else if (mode === 'carry_both') {
+    saveData.last_week.goals = data.this_week.goals;
+    saveData.this_week.goals = data.this_week.goals;
+  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData)); } catch(e) {}
 
   const dateLabel = fmtMD(base);
   const lastDates = weekDates(base, true);
