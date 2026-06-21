@@ -486,18 +486,18 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
 
   // Name (2 lines)
   slide.addText([
-    { text: nameJa, options: { fontSize: 20, bold: true, fontFace: FONT, breakType: 'none' } },
-    { text: nameEn, options: { fontSize: 20, bold: true, fontFace: FONT, breakType: 'none' } }
+    { text: nameJa, options: { fontSize: 20, bold: true, fontFace: FONT, breakLine: true } },
+    { text: nameEn, options: { fontSize: 20, bold: true, fontFace: FONT } }
   ], { x: 0.28, y: 0.53, w: 2.86, h: 0.87, color: '000000' });
 
   // Attendance table
   const attRows = [
-    [{ text: 'Date', options: { bold: true, fontSize: 9 } }],
-    [{ text: '在室時間', options: { bold: true, fontSize: 9 } }]
+    [{ text: 'Date', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF' } }],
+    [{ text: '在室時間', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF' } }]
   ];
   for (let i = 0; i < 7; i++) {
-    attRows[0].push({ text: dates[i] || '', options: { fontSize: 9 } });
-    attRows[1].push({ text: (sec.hours[i] || ''), options: { fontSize: 9 } });
+    attRows[0].push({ text: dates[i] || '', options: { fontSize: 18 } });
+    attRows[1].push({ text: (sec.hours[i] || ''), options: { fontSize: 18 } });
   }
   slide.addTable(attRows, {
     x: 3.28, y: 0.28, w: 9.76,
@@ -517,17 +517,17 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
   // Goals table
   const goalRows = [
     [
-      { text: '目標', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 10 } },
-      { text: '達成度', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 10 } },
-      { text: '概要', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 10 } }
+      { text: '目標', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18 } },
+      { text: '達成度', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18 } },
+      { text: '概要', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18 } }
     ]
   ];
   for (let i = 0; i < 4; i++) {
     const g = (sec.goals && sec.goals[i]) || {};
     goalRows.push([
-      { text: g.goal || '', options: { fontSize: 10 } },
-      { text: g.achievement || '', options: { fontSize: 10, align: 'center' } },
-      { text: g.summary || '', options: { fontSize: 10 } }
+      { text: g.goal || '', options: { fontSize: 18 } },
+      { text: g.achievement || '', options: { fontSize: 18, align: 'center' } },
+      { text: g.summary || '', options: { fontSize: 18 } }
     ]);
   }
   slide.addTable(goalRows, {
@@ -547,12 +547,12 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
 
   // Others table
   const otherRows = [
-    [{ text: '概要', options: { bold: true, fill: { color: ACCENT3 }, color: 'FFFFFF', fontSize: 10 } }]
+    [{ text: '概要', options: { bold: true, fill: { color: ACCENT3 }, color: 'FFFFFF', fontSize: 18 } }]
   ];
   for (let i = 0; i < 4; i++) {
     const o = (sec.others && sec.others[i]) || {};
     otherRows.push([
-      { text: o.summary || '', options: { fontSize: 10 } }
+      { text: o.summary || '', options: { fontSize: 18 } }
     ]);
   }
   slide.addTable(otherRows, {
