@@ -295,7 +295,7 @@ const T = {
     carry_confirm:"先週欄に既に内容があります。上書きしますか？",
     carry_done_move:"今週の目標を先週へ移動しました",
     carry_done_copy:"今週の目標を先週へコピーしました",
-    carry_help:"【ボタンの使い方】\n新しい週のスライドを作る時、前回入力した「今週の目標」は「先週の目標」になります。\n\n● 移動: 今週欄を先週欄に上書きし、今週欄を空にする（普通はこちら）\n● コピー: 今週欄を先週欄に上書きし、今週欄はそのまま残す（同じ目標を継続する場合）\n\n先週欄にすでに内容がある場合は確認ダイアログが出ます。",
+    carry_help:"時間が1週間進んだ時に使用します。\n先週編集した「今週」の内容は、今週の「先週」になるためです。\n\nどちらも先週欄に今週の内容を入れます。\n違いは今週欄の扱いだけ:\n\n・移動 → 今週欄は空になる\n・コピー → 今週欄は残る\n\n新しい目標を立てるなら「移動」、\n同じ目標を継続するなら「コピー」。",
     generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
@@ -312,7 +312,7 @@ const T = {
     carry_confirm:"上周栏已有内容。要覆盖吗？",
     carry_done_move:"已将本周目标移动到上周",
     carry_done_copy:"已将本周目标复制到上周",
-    carry_help:"【按钮说明】\n制作新一周的幻灯片时，上次输入的「本周目标」会变成「上周目标」。\n\n● 移动: 将本周栏覆盖到上周栏，并清空本周栏（通常选这个）\n● 复制: 将本周栏覆盖到上周栏，本周栏保持原样（继续相同目标时使用）\n\n上周栏已有内容时会弹出确认对话框。",
+    carry_help:"时间推进一周时使用。\n上次编辑的「本周」内容，本周将变成「上周」。\n\n两个按钮都会将本周内容放入上周栏。\n区别只在于本周栏的处理:\n\n・移动 → 本周栏清空\n・复制 → 本周栏保留\n\n要制定新目标选「移动」，\n继续相同目标选「复制」。",
     generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
@@ -329,7 +329,7 @@ const T = {
     carry_confirm:"지난주 칸에 이미 내용이 있습니다. 덮어쓰시겠습니까?",
     carry_done_move:"이번주 목표를 지난주로 이동했습니다",
     carry_done_copy:"이번주 목표를 지난주로 복사했습니다",
-    carry_help:"【버튼 사용법】\n새로운 주의 슬라이드를 만들 때, 지난번에 입력한 「이번주 목표」는 「지난주 목표」가 됩니다.\n\n● 이동: 이번주 칸을 지난주 칸에 덮어쓰고 이번주 칸을 비웁니다 (보통 이것)\n● 복사: 이번주 칸을 지난주 칸에 덮어쓰고 이번주 칸은 그대로 (같은 목표를 계속할 때)\n\n지난주 칸에 이미 내용이 있으면 확인 대화상자가 나옵니다.",
+    carry_help:"시간이 1주일 지났을 때 사용합니다.\n지난번에 편집한 「이번주」 내용이 이번주의 「지난주」가 되기 때문입니다.\n\n두 버튼 모두 지난주 칸에 이번주 내용을 넣습니다.\n차이는 이번주 칸의 처리:\n\n・이동 → 이번주 칸이 비워짐\n・복사 → 이번주 칸이 남음\n\n새로운 목표를 세운다면 「이동」,\n같은 목표를 계속한다면 「복사」。",
     generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
@@ -346,7 +346,7 @@ const T = {
     carry_confirm:"Last week column has content. Overwrite?",
     carry_done_move:"Moved this week's goals to last week",
     carry_done_copy:"Copied this week's goals to last week",
-    carry_help:"[How to use]\nWhen making slides for a new week, last time's \"this week's goals\" become \"last week's goals\".\n\n● Move: Overwrite last-week column with this-week column, then clear this-week column (usually this one)\n● Copy: Overwrite last-week column with this-week column, keep this-week column as-is (when continuing the same goals)\n\nA confirmation dialog appears if last-week column already has content.",
+    carry_help:"Use this when one week has passed.\nLast week's \"this week\" content becomes this week's \"last week\".\n\nBoth buttons copy this week's content into the last-week column.\nThe only difference is what happens to the this-week column:\n\n・Move → This-week column is cleared\n・Copy → This-week column stays as-is\n\nChoose \"Move\" to write new goals,\n\"Copy\" to continue the same goals.",
     generated:"Output: {}", err_input:"Input Error"
   }
 };
