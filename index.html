@@ -30,7 +30,15 @@ body {
   padding: 16px;
 }
 .container { max-width: 900px; margin: 0 auto; }
-h1 { font-size: 1.3rem; margin-bottom: 12px; font-weight: 600; }
+
+.app-title-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+h1 { font-size: 1.3rem; font-weight: 600; }
 
 .row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
 label { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
@@ -55,6 +63,7 @@ select { cursor: pointer; }
 .field input.short { width: 80px; }
 .field select.short { width: 90px; }
 .field input.date { width: 120px; }
+.field select.fn-select { width: 160px; }
 
 .tabs { display: flex; gap: 0; margin-top: 12px; }
 .tab-btn {
@@ -158,6 +167,7 @@ button.gen {
 button.gen:hover { background: var(--success-hover); }
 button.gen:active { transform: scale(0.97); }
 .carry-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -195,12 +205,14 @@ button.gen:active { transform: scale(0.97); }
   justify-content: center;
   padding: 0;
   margin-left: 4px;
+  flex-shrink: 0;
 }
 .btn-help:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 .help-pop {
   position: absolute;
-  margin-top: 4px;
-  max-width: 380px;
+  top: calc(100% + 6px);
+  left: 0;
+  max-width: 420px;
   background: var(--surface2);
   border: 1px solid var(--accent);
   border-radius: 6px;
@@ -212,7 +224,6 @@ button.gen:active { transform: scale(0.97); }
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   white-space: pre-line;
 }
-.carry-row { position: relative; }
 
 .status {
   margin-top: 8px;
@@ -226,7 +237,11 @@ button.gen:active { transform: scale(0.97); }
 </head>
 <body>
 <div class="container">
-  <h1 id="title">週報スライド生成</h1>
+  <div class="app-title-wrap">
+    <h1 id="title">活動報告スライドメーカー</h1>
+    <button class="btn-help" onclick="toggleHelp(this)" type="button" aria-label="app help">?</button>
+    <div class="help-pop" hidden><div class="app-help-text"></div></div>
+  </div>
 
   <div class="row">
     <div class="field">
@@ -239,8 +254,12 @@ button.gen:active { transform: scale(0.97); }
       </datalist>
     </div>
     <div class="field">
-      <label id="lbl-name-ja">名前(漢字)</label>
-      <input type="text" id="name-ja">
+      <label id="lbl-name-ja-sei">苗字(漢字)</label>
+      <input type="text" id="name-ja-sei" class="short">
+    </div>
+    <div class="field">
+      <label id="lbl-name-ja-mei">名前(漢字)</label>
+      <input type="text" id="name-ja-mei" class="short">
     </div>
     <div class="field">
       <label id="lbl-name-en">ローマ字</label>
@@ -250,8 +269,15 @@ button.gen:active { transform: scale(0.97); }
 
   <div class="row">
     <div class="field">
-      <label id="lbl-date">基準日</label>
+      <label id="lbl-date">ゼミ実施日</label>
       <input type="text" id="base-date" class="date" placeholder="2026/06/17">
+    </div>
+    <div class="field">
+      <label id="lbl-fn-fmt">ファイル名</label>
+      <select id="fn-format" class="fn-select">
+        <option value="sei" id="fn-opt-sei">{学年}_{苗字}</option>
+        <option value="sei_mei" id="fn-opt-sei-mei">{学年}_{苗字}_{名前}</option>
+      </select>
     </div>
     <div class="field">
       <label id="lbl-lang">言語 (Lang)</label>
@@ -282,8 +308,10 @@ button.gen:active { transform: scale(0.97); }
 // ── i18n ──
 const T = {
   ja: {
-    title:"活動報告スライドメーカー", grade:"学年", name_ja:"名前(漢字)", name_en:"ローマ字",
+    title:"活動報告スライドメーカー", grade:"学年",
+    name_ja_sei:"苗字(漢字)", name_ja_mei:"名前(漢字)", name_en:"ローマ字",
     base_date:"ゼミ実施日", lang:"言語 (Lang)",
+    fn_format:"ファイル名", fn_sei:"{学年}_{苗字}", fn_sei_mei:"{学年}_{苗字}_{名前}",
     tab_last:"先週（スライド1）", tab_this:"今週（スライド2）",
     attendance:"在室時間", goals:"目標（最大4件）",
     col_goal:"目標", col_ach:"達成度", col_sum:"概要",
@@ -296,11 +324,14 @@ const T = {
     carry_done_move:"今週の目標を先週へ移動しました",
     carry_done_copy:"今週の目標を先週へコピーしました",
     carry_help:"時間が1週間進んだ時に使用します。\n先週編集した「今週」の内容は、今週の「先週」になるためです。\n\nどちらも先週欄に今週の内容を入れます。\n違いは今週欄の扱いだけ:\n\n・移動 → 今週欄は空になる\n・コピー → 今週欄は残る\n\n新しい目標を立てるなら「移動」、\n同じ目標を継続するなら「コピー」。",
+    app_help:"毎週のゼミ活動報告スライドを自動生成するWebツールです。\n苗字・名前・在室時間・目標・その他取り組みを入力するだけで、テンプレートに合ったPowerPointファイルを出力できます。\n\nインストール不要。URLを開くだけで使えます。\n入力内容は自動保存され、次回起動時に復元されます。",
     generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
-    title:"活动报告幻灯片制作", grade:"年级", name_ja:"姓名(汉字)", name_en:"罗马字",
+    title:"活动报告幻灯片制作", grade:"年级",
+    name_ja_sei:"姓(汉字)", name_ja_mei:"名(汉字)", name_en:"罗马字",
     base_date:"组会日期", lang:"语言 (Lang)",
+    fn_format:"文件名", fn_sei:"{年级}_{姓}", fn_sei_mei:"{年级}_{姓}_{名}",
     tab_last:"上周（幻灯片1）", tab_this:"本周（幻灯片2）",
     attendance:"在室时间", goals:"目标（最多4项）",
     col_goal:"目标", col_ach:"完成度", col_sum:"概要",
@@ -313,11 +344,14 @@ const T = {
     carry_done_move:"已将本周目标移动到上周",
     carry_done_copy:"已将本周目标复制到上周",
     carry_help:"时间推进一周时使用。\n上次编辑的「本周」内容，本周将变成「上周」。\n\n两个按钮都会将本周内容放入上周栏。\n区别只在于本周栏的处理:\n\n・移动 → 本周栏清空\n・复制 → 本周栏保留\n\n要制定新目标选「移动」，\n继续相同目标选「复制」。",
+    app_help:"自动生成每周组会活动报告幻灯片的Web工具。\n只需输入姓名、在室时间、目标及其他工作内容，即可输出符合模板的PowerPoint文件。\n\n无需安装。打开URL即可使用。\n输入内容自动保存，下次打开时恢复。",
     generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
-    title:"활동보고 슬라이드 메이커", grade:"학년", name_ja:"이름(한자)", name_en:"로마자",
+    title:"활동보고 슬라이드 메이커", grade:"학년",
+    name_ja_sei:"성(한자)", name_ja_mei:"이름(한자)", name_en:"로마자",
     base_date:"세미나 실시일", lang:"언어 (Lang)",
+    fn_format:"파일명", fn_sei:"{학년}_{성}", fn_sei_mei:"{학년}_{성}_{이름}",
     tab_last:"지난주（슬라이드1）", tab_this:"이번주（슬라이드2）",
     attendance:"재실시간", goals:"목표（최대 4건）",
     col_goal:"목표", col_ach:"달성도", col_sum:"개요",
@@ -330,11 +364,14 @@ const T = {
     carry_done_move:"이번주 목표를 지난주로 이동했습니다",
     carry_done_copy:"이번주 목표를 지난주로 복사했습니다",
     carry_help:"시간이 1주일 지났을 때 사용합니다.\n지난번에 편집한 「이번주」 내용이 이번주의 「지난주」가 되기 때문입니다.\n\n두 버튼 모두 지난주 칸에 이번주 내용을 넣습니다.\n차이는 이번주 칸의 처리:\n\n・이동 → 이번주 칸이 비워짐\n・복사 → 이번주 칸이 남음\n\n새로운 목표를 세운다면 「이동」,\n같은 목표를 계속한다면 「복사」。",
+    app_help:"매주 세미나 활동보고 슬라이드를 자동 생성하는 웹 도구입니다.\n성・이름・재실시간・목표・기타 작업을 입력하면 템플릿에 맞는 PowerPoint 파일을 출력할 수 있습니다.\n\n설치 불필요. URL을 열기만 하면 됩니다.\n입력 내용은 자동 저장되어 다음 실행 시 복원됩니다.",
     generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
-    title:"Activity Report Slide Maker", grade:"Grade", name_ja:"Name (Kanji)", name_en:"Romaji",
+    title:"Activity Report Slide Maker", grade:"Grade",
+    name_ja_sei:"Last Name (Kanji)", name_ja_mei:"First Name (Kanji)", name_en:"Romaji",
     base_date:"Seminar Date", lang:"Lang",
+    fn_format:"Filename", fn_sei:"{grade}_{last}", fn_sei_mei:"{grade}_{last}_{first}",
     tab_last:"Last Week (Slide 1)", tab_this:"This Week (Slide 2)",
     attendance:"Hours Present", goals:"Goals (max 4)",
     col_goal:"Goal", col_ach:"Progress", col_sum:"Summary",
@@ -347,6 +384,7 @@ const T = {
     carry_done_move:"Moved this week's goals to last week",
     carry_done_copy:"Copied this week's goals to last week",
     carry_help:"Use this when one week has passed.\nLast week's \"this week\" content becomes this week's \"last week\".\n\nBoth buttons copy this week's content into the last-week column.\nThe only difference is what happens to the this-week column:\n\n・Move → This-week column is cleared\n・Copy → This-week column stays as-is\n\nChoose \"Move\" to write new goals,\n\"Copy\" to continue the same goals.",
+    app_help:"A web tool for automatically generating weekly seminar activity report slides.\nJust enter your name, hours present, goals, and other tasks to produce a PowerPoint file matching the template.\n\nNo installation required. Just open the URL.\nYour input is auto-saved and restored next time you open the app.",
     generated:"Output: {}", err_input:"Input Error"
   }
 };
@@ -360,9 +398,13 @@ function applyLang() {
   document.getElementById('title').textContent = l.title;
   document.title = l.title;
   document.getElementById('lbl-grade').textContent = l.grade;
-  document.getElementById('lbl-name-ja').textContent = l.name_ja;
+  document.getElementById('lbl-name-ja-sei').textContent = l.name_ja_sei;
+  document.getElementById('lbl-name-ja-mei').textContent = l.name_ja_mei;
   document.getElementById('lbl-name-en').textContent = l.name_en;
   document.getElementById('lbl-date').textContent = l.base_date;
+  document.getElementById('lbl-fn-fmt').textContent = l.fn_format;
+  document.getElementById('fn-opt-sei').textContent = l.fn_sei;
+  document.getElementById('fn-opt-sei-mei').textContent = l.fn_sei_mei;
   document.getElementById('lbl-lang').textContent = l.lang;
   document.getElementById('tab-btn-last').textContent = l.tab_last;
   document.getElementById('tab-btn-this').textContent = l.tab_this;
@@ -371,6 +413,7 @@ function applyLang() {
   document.querySelectorAll('.btn-carry-move').forEach(e => e.textContent = l.carry_move);
   document.querySelectorAll('.btn-carry-copy').forEach(e => e.textContent = l.carry_copy);
   document.querySelectorAll('.help-text').forEach(e => e.textContent = l.carry_help);
+  document.querySelectorAll('.app-help-text').forEach(e => e.textContent = l.app_help);
   document.querySelectorAll('.sec-att-title').forEach(e => e.textContent = l.attendance);
   document.querySelectorAll('.sec-goal-title').forEach(e => e.textContent = l.goals);
   document.querySelectorAll('.sec-other-title').forEach(e => e.textContent = l.others);
@@ -382,9 +425,9 @@ function applyLang() {
 // ── Date helpers ──
 function nextTuesday() {
   const d = new Date();
-  const day = d.getDay(); // 0=Sun
+  const day = d.getDay();
   let diff = (2 - day + 7) % 7;
-  if (diff === 0) diff = 0; // today is Tuesday → use today
+  if (diff === 0) diff = 0;
   d.setDate(d.getDate() + diff);
   return d;
 }
@@ -479,16 +522,17 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 const STORAGE_KEY = 'pptx_gen_autosave';
 
 function collectData() {
-  const data = {
+  return {
     grade: document.getElementById('grade').value.trim(),
-    name_ja: document.getElementById('name-ja').value.trim(),
+    name_ja_sei: document.getElementById('name-ja-sei').value.trim(),
+    name_ja_mei: document.getElementById('name-ja-mei').value.trim(),
     name_en: document.getElementById('name-en').value.trim(),
     date: document.getElementById('base-date').value.trim(),
+    fn_format: document.getElementById('fn-format').value,
     lang: currentLang,
     last_week: collectWeek('lw'),
     this_week: collectWeek('tw'),
   };
-  return data;
 }
 
 function collectWeek(prefix) {
@@ -521,8 +565,19 @@ function autoLoad() {
     if (!raw) return;
     const data = JSON.parse(raw);
     if (data.grade) document.getElementById('grade').value = data.grade;
-    if (data.name_ja) document.getElementById('name-ja').value = data.name_ja;
+
+    // name fields: support old format (name_ja as single field)
+    if (data.name_ja_sei !== undefined) {
+      document.getElementById('name-ja-sei').value = data.name_ja_sei;
+      document.getElementById('name-ja-mei').value = data.name_ja_mei || '';
+    } else if (data.name_ja) {
+      const parts = data.name_ja.trim().split(/\s+/);
+      document.getElementById('name-ja-sei').value = parts[0] || '';
+      document.getElementById('name-ja-mei').value = parts.slice(1).join('') || '';
+    }
+
     if (data.name_en) document.getElementById('name-en').value = data.name_en;
+    if (data.fn_format) document.getElementById('fn-format').value = data.fn_format;
     if (data.lang && T[data.lang]) {
       currentLang = data.lang;
       document.getElementById('lang-select').value = data.lang;
@@ -530,7 +585,7 @@ function autoLoad() {
     }
     if (data.last_week) fillWeek('lw', data.last_week);
     if (data.this_week) fillWeek('tw', data.this_week);
-    setStatus(t('generated').replace('{}', '前回の入力を復元しました'), '');
+    setStatus('前回の入力を復元しました', '');
   } catch(e) {}
 }
 
@@ -560,16 +615,6 @@ function setStatus(msg, cls) {
 }
 
 // ── PPTX Generation ──
-// Slide: 13.33 x 7.50 inches (widescreen 16:9)
-// Layout from template analysis:
-//   Name box: left=0.28, top=0.53, w=2.86, h=0.87
-//   Date box: left=0.30, top=0.21, w=1.01, h=0.44
-//   Attendance table (ID=7): left=3.28, top=0.28, w=9.76, h=0.94, 2r x 8c
-//   Section label (ID=3): left=0.28, top=1.47
-//   Goals table (ID=4): left=0.28, top=2.28, w=8.96, h=4.94, 5r x 3c
-//   Others label (ID=21): left=9.53, top=1.47
-//   Others table (ID=19): left=9.52, top=2.28, w=3.54, h=4.94, 5r x 1c
-
 const FONT = 'Yu Gothic';
 const ACCENT1 = '156082';
 const ACCENT3 = '196B24';
@@ -581,19 +626,16 @@ const BAND_GREEN_LIGHT = 'E8EFE9';
 function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, othersLabel) {
   const slide = pptx.addSlide();
 
-  // Date label (top-left)
   slide.addText(dateLabel, {
     x: 0.30, y: 0.21, w: 1.01, h: 0.44,
     fontSize: 20, bold: true, fontFace: FONT, color: '000000'
   });
 
-  // Name (2 lines)
   slide.addText([
     { text: nameJa, options: { fontSize: 20, bold: true, fontFace: FONT, breakLine: true } },
     { text: nameEn, options: { fontSize: 20, bold: true, fontFace: FONT } }
   ], { x: 0.28, y: 0.53, w: 2.86, h: 0.87, color: '000000' });
 
-  // Attendance table
   const attRows = [
     [{ text: 'Date', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF', align: 'center', valign: 'middle' } }],
     [{ text: '在室時間', options: { bold: true, fontSize: 18, fill: { color: ACCENT1 }, color: 'FFFFFF', align: 'center', valign: 'middle' } }]
@@ -604,20 +646,16 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
   }
   slide.addTable(attRows, {
     x: 3.28, y: 0.28, w: 9.76,
-    fontFace: FONT,
-    color: '000000',
+    fontFace: FONT, color: '000000',
     border: { type: 'solid', pt: 0.5, color: '999999' },
     colW: [1.22, 1.22, 1.22, 1.22, 1.22, 1.22, 1.22, 1.22],
-    rowH: [0.38, 0.38],
-    autoPage: false
+    rowH: [0.38, 0.38], autoPage: false
   });
 
-  // Section label: goals
   slide.addText([
     { text: slideLabel, options: { fontSize: 18, fontFace: FONT, color: '333333' } }
   ], { x: 0.28, y: 1.47, w: 8.96, h: 0.82, valign: 'middle' });
 
-  // Goals table
   const goalRows = [
     [
       { text: '目標', options: { bold: true, fill: { color: ACCENT1 }, color: 'FFFFFF', fontSize: 18, align: 'center', valign: 'middle' } },
@@ -636,20 +674,16 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
   }
   slide.addTable(goalRows, {
     x: 0.28, y: 2.28, w: 8.96,
-    fontFace: FONT,
-    color: '000000',
+    fontFace: FONT, color: '000000',
     border: { type: 'solid', pt: 0.5, color: '999999' },
     colW: [2.99, 1.21, 4.76],
-    rowH: [0.35, 1.15, 1.15, 1.15, 1.15],
-    autoPage: false
+    rowH: [0.35, 1.15, 1.15, 1.15, 1.15], autoPage: false
   });
 
-  // Section label: others
   slide.addText([
     { text: othersLabel, options: { fontSize: 18, fontFace: FONT, color: '333333' } }
   ], { x: 9.53, y: 1.47, w: 3.51, h: 0.82, valign: 'middle' });
 
-  // Others table
   const otherRows = [
     [{ text: '概要', options: { bold: true, fill: { color: ACCENT3 }, color: 'FFFFFF', fontSize: 18, align: 'center', valign: 'middle' } }]
   ];
@@ -662,12 +696,10 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
   }
   slide.addTable(otherRows, {
     x: 9.52, y: 2.28, w: 3.54,
-    fontFace: FONT,
-    color: '000000',
+    fontFace: FONT, color: '000000',
     border: { type: 'solid', pt: 0.5, color: '999999' },
     colW: [3.54],
-    rowH: [0.35, 1.15, 1.15, 1.15, 1.15],
-    autoPage: false
+    rowH: [0.35, 1.15, 1.15, 1.15, 1.15], autoPage: false
   });
 }
 
@@ -696,7 +728,6 @@ function carryGoals(mode) {
   if (hasGoalsInLastWeek()) {
     if (!confirm(t('carry_confirm'))) return;
   }
-  // Copy this week's goals → last week
   for (let i = 0; i < 4; i++) {
     document.getElementById(`lw-g${i}`).value = document.getElementById(`tw-g${i}`).value;
     document.getElementById(`lw-a${i}`).value = document.getElementById(`tw-a${i}`).value;
@@ -719,27 +750,30 @@ function generate() {
   const data = collectData();
   autoSave();
 
-  // Validate
-  if (!data.name_ja) { setStatus(t('err_input') + ': name_ja', 'err'); return; }
+  if (!data.name_ja_sei) { setStatus(t('err_input') + ': name', 'err'); return; }
   if (!data.name_en) { setStatus(t('err_input') + ': name_en', 'err'); return; }
   const base = parseDate(data.date);
   if (!base) { setStatus(t('err_input') + ': date', 'err'); return; }
 
+  const nameJa = data.name_ja_sei + data.name_ja_mei;
   const dateLabel = fmtMD(base);
   const lastDates = weekDates(base, true);
   const thisDates = weekDates(base, false);
 
   const pptx = new PptxGenJS();
-  pptx.layout = 'LAYOUT_WIDE'; // 13.33 x 7.5
+  pptx.layout = 'LAYOUT_WIDE';
 
-  buildSlide(pptx, data.name_ja, data.name_en, dateLabel, lastDates, data.last_week,
+  buildSlide(pptx, nameJa, data.name_en, dateLabel, lastDates, data.last_week,
     '先週の目標とその進捗\nLast week\'s goals and progress',
     'その他取り組むこと\nWhat else I will do');
-  buildSlide(pptx, data.name_ja, data.name_en, dateLabel, thisDates, data.this_week,
+  buildSlide(pptx, nameJa, data.name_en, dateLabel, thisDates, data.this_week,
     '今週の目標とその進捗\nThis week\'s goals and progress',
     'その他取り組むこと\nWhat else I will do');
 
-  const prefix = data.grade ? `${data.grade}_${data.name_ja}` : data.name_ja;
+  const namePart = (data.fn_format === 'sei_mei' && data.name_ja_mei)
+    ? `${data.name_ja_sei}_${data.name_ja_mei}`
+    : data.name_ja_sei;
+  const prefix = data.grade ? `${data.grade}_${namePart}` : namePart;
   const filename = prefix.replace(/[\\/:*?"<>|\s]+/g, '_');
 
   pptx.writeFile({ fileName: `${filename}.pptx` })
@@ -751,6 +785,7 @@ function generate() {
 document.getElementById('lang-select').addEventListener('change', (e) => {
   currentLang = e.target.value;
   applyLang();
+  autoSave();
 });
 
 // ── Date change ──
@@ -767,6 +802,7 @@ buildTab('tab-this', 'tw');
 const tue = nextTuesday();
 document.getElementById('base-date').value = fmtDate(tue);
 
+applyLang();
 autoLoad();
 updateDates();
 </script>
