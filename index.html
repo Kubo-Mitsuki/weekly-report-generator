@@ -180,6 +180,39 @@ button.gen:active { transform: scale(0.97); }
 }
 .btn-carry:hover { background: var(--accent-hover); }
 .btn-carry:active { transform: scale(0.97); }
+.btn-help {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 4px;
+}
+.btn-help:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+.help-pop {
+  position: absolute;
+  margin-top: 4px;
+  max-width: 380px;
+  background: var(--surface2);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  white-space: pre-line;
+}
+.carry-row { position: relative; }
 
 .status {
   margin-top: 8px;
@@ -262,6 +295,7 @@ const T = {
     carry_confirm:"先週欄に既に内容があります。上書きしますか？",
     carry_done_move:"今週の目標を先週へ移動しました",
     carry_done_copy:"今週の目標を先週へコピーしました",
+    carry_help:"【ボタンの使い方】\n新しい週のスライドを作る時、前回入力した「今週の目標」は「先週の目標」になります。\n\n● 移動: 今週欄を先週欄に上書きし、今週欄を空にする（普通はこちら）\n● コピー: 今週欄を先週欄に上書きし、今週欄はそのまま残す（同じ目標を継続する場合）\n\n先週欄にすでに内容がある場合は確認ダイアログが出ます。",
     generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
@@ -278,6 +312,7 @@ const T = {
     carry_confirm:"上周栏已有内容。要覆盖吗？",
     carry_done_move:"已将本周目标移动到上周",
     carry_done_copy:"已将本周目标复制到上周",
+    carry_help:"【按钮说明】\n制作新一周的幻灯片时，上次输入的「本周目标」会变成「上周目标」。\n\n● 移动: 将本周栏覆盖到上周栏，并清空本周栏（通常选这个）\n● 复制: 将本周栏覆盖到上周栏，本周栏保持原样（继续相同目标时使用）\n\n上周栏已有内容时会弹出确认对话框。",
     generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
@@ -294,6 +329,7 @@ const T = {
     carry_confirm:"지난주 칸에 이미 내용이 있습니다. 덮어쓰시겠습니까?",
     carry_done_move:"이번주 목표를 지난주로 이동했습니다",
     carry_done_copy:"이번주 목표를 지난주로 복사했습니다",
+    carry_help:"【버튼 사용법】\n새로운 주의 슬라이드를 만들 때, 지난번에 입력한 「이번주 목표」는 「지난주 목표」가 됩니다.\n\n● 이동: 이번주 칸을 지난주 칸에 덮어쓰고 이번주 칸을 비웁니다 (보통 이것)\n● 복사: 이번주 칸을 지난주 칸에 덮어쓰고 이번주 칸은 그대로 (같은 목표를 계속할 때)\n\n지난주 칸에 이미 내용이 있으면 확인 대화상자가 나옵니다.",
     generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
@@ -310,6 +346,7 @@ const T = {
     carry_confirm:"Last week column has content. Overwrite?",
     carry_done_move:"Moved this week's goals to last week",
     carry_done_copy:"Copied this week's goals to last week",
+    carry_help:"[How to use]\nWhen making slides for a new week, last time's \"this week's goals\" become \"last week's goals\".\n\n● Move: Overwrite last-week column with this-week column, then clear this-week column (usually this one)\n● Copy: Overwrite last-week column with this-week column, keep this-week column as-is (when continuing the same goals)\n\nA confirmation dialog appears if last-week column already has content.",
     generated:"Output: {}", err_input:"Input Error"
   }
 };
@@ -333,6 +370,7 @@ function applyLang() {
   document.querySelectorAll('.carry-label').forEach(e => e.textContent = l.carry_label);
   document.querySelectorAll('.btn-carry-move').forEach(e => e.textContent = l.carry_move);
   document.querySelectorAll('.btn-carry-copy').forEach(e => e.textContent = l.carry_copy);
+  document.querySelectorAll('.help-text').forEach(e => e.textContent = l.carry_help);
   document.querySelectorAll('.sec-att-title').forEach(e => e.textContent = l.attendance);
   document.querySelectorAll('.sec-goal-title').forEach(e => e.textContent = l.goals);
   document.querySelectorAll('.sec-other-title').forEach(e => e.textContent = l.others);
@@ -399,6 +437,8 @@ function buildTab(containerId, prefix) {
     <span class="carry-label">${t('carry_label')}</span>
     <button class="btn-carry btn-carry-move" onclick="carryGoals('move')">${t('carry_move')}</button>
     <button class="btn-carry btn-carry-copy" onclick="carryGoals('copy')">${t('carry_copy')}</button>
+    <button class="btn-help" onclick="toggleHelp(this)" type="button" aria-label="help">?</button>
+    <div class="help-pop" hidden><div class="help-text">${t('carry_help')}</div></div>
   </div>`;
   html += '<table class="goals-table"><thead><tr>';
   html += `<th class="col-goal th-goal">${t('col_goal')}</th>`;
@@ -630,6 +670,19 @@ function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, oth
     autoPage: false
   });
 }
+
+// ── Help popup ──
+function toggleHelp(btn) {
+  const pop = btn.nextElementSibling;
+  const willShow = pop.hidden;
+  document.querySelectorAll('.help-pop').forEach(p => p.hidden = true);
+  if (willShow) pop.hidden = false;
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.btn-help') && !e.target.closest('.help-pop')) {
+    document.querySelectorAll('.help-pop').forEach(p => p.hidden = true);
+  }
+});
 
 // ── Carry over goals ──
 function hasGoalsInLastWeek() {
