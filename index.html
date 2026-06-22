@@ -770,10 +770,19 @@ function generate() {
     '今週の目標とその進捗\nThis week\'s goals and progress',
     'その他取り組むこと\nWhat else I will do');
 
-  const nameParts = [data.name_ja_sei];
-  if (data.fn_format === 'sei_mei' && data.name_ja_mei) nameParts.push(data.name_ja_mei);
-  const allParts = data.grade ? [data.grade, ...nameParts] : nameParts;
-  const filename = allParts.filter(Boolean).join('_').replace(/[\\/:*?"<>|\s]+/g, '_');
+  // U+200B-200D (ZW spaces), U+FEFF (BOM) など不可視文字を除去
+  const stripInvisible = s => (s || '').replace(/[​-‍﻿]/g, '').trim();
+  const seiClean = stripInvisible(data.name_ja_sei);
+  const meiClean = stripInvisible(data.name_ja_mei);
+  const gradeClean = stripInvisible(data.grade);
+  const parts = [];
+  if (gradeClean) parts.push(gradeClean);
+  if (seiClean) parts.push(seiClean);
+  if (data.fn_format === 'sei_mei' && meiClean) parts.push(meiClean);
+  const filename = parts.join('_')
+    .replace(/[\\/:*?"<>|\s]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
 
   pptx.writeFile({ fileName: `${filename}.pptx` })
     .then(() => setStatus(t('generated').replace('{}', `${filename}.pptx`), 'ok'))
