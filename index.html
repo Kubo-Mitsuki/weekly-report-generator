@@ -770,11 +770,10 @@ function generate() {
     '今週の目標とその進捗\nThis week\'s goals and progress',
     'その他取り組むこと\nWhat else I will do');
 
-  const namePart = (data.fn_format === 'sei_mei' && data.name_ja_mei)
-    ? `${data.name_ja_sei}_${data.name_ja_mei}`
-    : data.name_ja_sei;
-  const prefix = data.grade ? `${data.grade}_${namePart}` : namePart;
-  const filename = prefix.replace(/[\\/:*?"<>|\s]+/g, '_');
+  const nameParts = [data.name_ja_sei];
+  if (data.fn_format === 'sei_mei' && data.name_ja_mei) nameParts.push(data.name_ja_mei);
+  const allParts = data.grade ? [data.grade, ...nameParts] : nameParts;
+  const filename = allParts.filter(Boolean).join('_').replace(/[\\/:*?"<>|\s]+/g, '_');
 
   pptx.writeFile({ fileName: `${filename}.pptx` })
     .then(() => setStatus(t('generated').replace('{}', `${filename}.pptx`), 'ok'))
