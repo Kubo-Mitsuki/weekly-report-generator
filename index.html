@@ -65,7 +65,16 @@ select { cursor: pointer; }
 .field input.date { width: 120px; }
 .field select.fn-select { width: 160px; }
 
-.combo { display: inline-flex; align-items: stretch; }
+.combo {
+  display: inline-flex;
+  align-items: stretch;
+  height: 32px;
+}
+.combo input, .combo select {
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
 .combo input {
   width: 60px;
   border-top-right-radius: 0;
@@ -73,13 +82,14 @@ select { cursor: pointer; }
   border-right: none;
 }
 .combo select {
-  width: 28px;
-  padding: 0 4px;
+  width: 30px;
+  padding: 0 2px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+  font-size: 0.75rem;
 }
 
 .tabs { display: flex; gap: 0; margin-top: 12px; }
@@ -538,7 +548,7 @@ function buildTab(containerId, prefix) {
   for (let i = 0; i < 7; i++) {
     html += `<div class="att-cell">
       <div class="att-date">--/--</div>
-      <input type="range" class="att-slider" id="${prefix}-h${i}-r" min="0" max="12" step="0.5" value="0" oninput="syncFromSlider('${prefix}-h${i}','')">
+      <input type="range" class="att-slider" id="${prefix}-h${i}-r" min="0" max="12" step="1" value="0" oninput="syncFromSlider('${prefix}-h${i}','')">
       <input type="text" class="att-input" id="${prefix}-h${i}" value="" oninput="syncFromInput('${prefix}-h${i}')">
     </div>`;
   }
@@ -561,7 +571,7 @@ function buildTab(containerId, prefix) {
     html += '<tr>';
     html += `<td><textarea id="${prefix}-g${i}"></textarea></td>`;
     html += `<td><div class="ach-cell">
-      <input type="range" class="ach-slider" id="${prefix}-a${i}-r" min="0" max="100" step="5" value="0" oninput="syncFromSlider('${prefix}-a${i}','%')">
+      <input type="range" class="ach-slider" id="${prefix}-a${i}-r" min="0" max="100" step="10" value="0" oninput="syncFromSlider('${prefix}-a${i}','%')">
       <div class="ach-input-wrap">
         <input type="text" class="ach-input" id="${prefix}-a${i}" value="" oninput="syncFromInput('${prefix}-a${i}')">
         <span class="ach-unit">%</span>
