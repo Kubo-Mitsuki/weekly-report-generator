@@ -66,31 +66,41 @@ select { cursor: pointer; }
 .field select.fn-select { width: 160px; }
 
 .combo {
-  display: inline-flex;
-  align-items: stretch;
+  position: relative;
+  display: inline-block;
   height: 32px;
 }
-.combo input, .combo select {
+.combo input {
+  width: 80px;
   height: 100%;
   box-sizing: border-box;
+  padding-right: 22px;
   margin: 0;
 }
-.combo input {
-  width: 60px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: none;
-}
 .combo select {
-  width: 30px;
-  padding: 0 2px;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  background: var(--surface);
-  color: var(--text);
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 100%;
+  opacity: 0;
   cursor: pointer;
-  font-size: 0.75rem;
+  border: none;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
 }
+.combo::after {
+  content: '▼';
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+}
+.combo:hover::after { color: var(--text); }
 
 .tabs { display: flex; gap: 0; margin-top: 12px; }
 .tab-btn {
