@@ -119,20 +119,59 @@ select { cursor: pointer; }
 .att-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 6px;
   margin-bottom: 12px;
 }
-.att-grid .att-date {
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  padding: 2px;
+.att-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
 }
-.att-grid input {
+.att-cell .att-date {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.att-slider, .ach-slider {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  height: 18px;
+}
+.att-input {
   width: 100%;
   text-align: center;
   font-size: 0.85rem;
-  padding: 4px;
+  padding: 3px 2px;
+}
+.ach-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  padding: 4px 6px;
+}
+.ach-input-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.ach-input {
+  width: 44px !important;
+  text-align: center;
+  font-size: 0.85rem;
+  padding: 2px;
+  border: 1px solid var(--border) !important;
+  border-radius: 3px;
+  background: var(--input-bg);
+}
+.ach-unit {
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
 .goals-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
@@ -496,8 +535,13 @@ function buildTab(containerId, prefix) {
   const container = document.getElementById(containerId);
   let html = `<div class="section-title sec-att-title">${t('attendance')}</div>`;
   html += '<div class="att-grid">';
-  for (let i = 0; i < 7; i++) html += `<div class="att-date">--/--</div>`;
-  for (let i = 0; i < 7; i++) html += `<input type="text" id="${prefix}-h${i}">`;
+  for (let i = 0; i < 7; i++) {
+    html += `<div class="att-cell">
+      <div class="att-date">--/--</div>
+      <input type="range" class="att-slider" id="${prefix}-h${i}-r" min="0" max="12" step="0.5" value="0" oninput="syncFromSlider('${prefix}-h${i}','')">
+      <input type="text" class="att-input" id="${prefix}-h${i}" value="" oninput="syncFromInput('${prefix}-h${i}')">
+    </div>`;
+  }
   html += '</div>';
 
   html += `<div class="section-title sec-goal-title">${t('goals')}</div>`;
@@ -516,7 +560,13 @@ function buildTab(containerId, prefix) {
   for (let i = 0; i < 4; i++) {
     html += '<tr>';
     html += `<td><textarea id="${prefix}-g${i}"></textarea></td>`;
-    html += `<td><input type="text" id="${prefix}-a${i}"></td>`;
+    html += `<td><div class="ach-cell">
+      <input type="range" class="ach-slider" id="${prefix}-a${i}-r" min="0" max="100" step="5" value="0" oninput="syncFromSlider('${prefix}-a${i}','%')">
+      <div class="ach-input-wrap">
+        <input type="text" class="ach-input" id="${prefix}-a${i}" value="" oninput="syncFromInput('${prefix}-a${i}')">
+        <span class="ach-unit">%</span>
+      </div>
+    </div></td>`;
     html += `<td><textarea id="${prefix}-s${i}"></textarea></td>`;
     html += '</tr>';
   }
@@ -531,6 +581,25 @@ function buildTab(containerId, prefix) {
   }
   html += '</tbody></table>';
   container.innerHTML = html;
+}
+
+// ── Slider ↔ Input sync ──
+// suffix: '' (時間) or '%' — slider operation overwrites input as plain number
+function syncFromSlider(id, suffix) {
+  const r = document.getElementById(id + '-r');
+  const t = document.getElementById(id);
+  if (!r || !t) return;
+  t.value = r.value;
+}
+function syncFromInput(id) {
+  const r = document.getElementById(id + '-r');
+  const t = document.getElementById(id);
+  if (!r || !t) return;
+  const num = parseFloat((t.value || '').toString().replace(/[^\d.\-]/g, ''));
+  if (!isNaN(num)) {
+    const clamped = Math.max(parseFloat(r.min), Math.min(parseFloat(r.max), num));
+    r.value = clamped;
+  }
 }
 
 // ── Tabs ──
@@ -618,13 +687,17 @@ function fillWeek(prefix, sec) {
   const hours = sec.hours || [];
   for (let i = 0; i < 7; i++) {
     const el = document.getElementById(`${prefix}-h${i}`);
-    if (el) el.value = hours[i] || '';
+    if (el) {
+      el.value = hours[i] || '';
+      syncFromInput(`${prefix}-h${i}`);
+    }
   }
   const goals = sec.goals || [];
   for (let i = 0; i < 4; i++) {
     const g = goals[i] || {};
     document.getElementById(`${prefix}-g${i}`).value = g.goal || '';
     document.getElementById(`${prefix}-a${i}`).value = g.achievement || '';
+    syncFromInput(`${prefix}-a${i}`);
     document.getElementById(`${prefix}-s${i}`).value = g.summary || '';
   }
   const others = sec.others || [];
@@ -757,12 +830,15 @@ function carryGoals(mode) {
     document.getElementById(`lw-g${i}`).value = document.getElementById(`tw-g${i}`).value;
     document.getElementById(`lw-a${i}`).value = document.getElementById(`tw-a${i}`).value;
     document.getElementById(`lw-s${i}`).value = document.getElementById(`tw-s${i}`).value;
+    syncFromInput(`lw-a${i}`);
   }
   if (mode === 'move') {
     for (let i = 0; i < 4; i++) {
       document.getElementById(`tw-g${i}`).value = '';
       document.getElementById(`tw-a${i}`).value = '';
       document.getElementById(`tw-s${i}`).value = '';
+      const r = document.getElementById(`tw-a${i}-r`);
+      if (r) r.value = 0;
     }
     setStatus(t('carry_done_move'), 'ok');
   } else {
