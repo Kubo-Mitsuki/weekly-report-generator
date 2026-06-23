@@ -129,6 +129,20 @@ select { cursor: pointer; }
 }
 .tab-content.active { display: block; }
 
+/* 先週 = 青系背景、今週 = 緑系背景 */
+#tab-last { background: #1f3043; border-color: #3f6a96; }
+#tab-this { background: #1f3a2c; border-color: #4a8a5e; }
+.tab-btn[data-tab="last"].active {
+  background: #1f3043;
+  border-color: #3f6a96;
+  border-bottom-color: #1f3043;
+}
+.tab-btn[data-tab="this"].active {
+  background: #1f3a2c;
+  border-color: #4a8a5e;
+  border-bottom-color: #1f3a2c;
+}
+
 .section-title {
   font-size: 0.85rem;
   color: var(--text-muted);
