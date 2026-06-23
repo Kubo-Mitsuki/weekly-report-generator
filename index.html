@@ -65,6 +65,23 @@ select { cursor: pointer; }
 .field input.date { width: 120px; }
 .field select.fn-select { width: 160px; }
 
+.combo { display: inline-flex; align-items: stretch; }
+.combo input {
+  width: 60px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none;
+}
+.combo select {
+  width: 28px;
+  padding: 0 4px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
 .tabs { display: flex; gap: 0; margin-top: 12px; }
 .tab-btn {
   padding: 8px 20px;
@@ -246,12 +263,20 @@ button.gen:active { transform: scale(0.97); }
   <div class="row">
     <div class="field">
       <label id="lbl-grade">学年</label>
-      <input type="text" id="grade" list="grade-list" class="short" value="B4">
-      <datalist id="grade-list">
-        <option value="B4"><option value="M1"><option value="M2">
-        <option value="D1"><option value="D2"><option value="D3">
-        <option value="Re"><option value="Ts">
-      </datalist>
+      <span class="combo">
+        <input type="text" id="grade" value="B4">
+        <select id="grade-select" aria-label="grade picker">
+          <option value="">▼</option>
+          <option value="B4">B4</option>
+          <option value="M1">M1</option>
+          <option value="M2">M2</option>
+          <option value="D1">D1</option>
+          <option value="D2">D2</option>
+          <option value="D3">D3</option>
+          <option value="Re">Re</option>
+          <option value="Ts">Ts</option>
+        </select>
+      </span>
     </div>
     <div class="field">
       <label id="lbl-name-ja-sei">苗字</label>
@@ -788,6 +813,15 @@ function generate() {
     .then(() => setStatus(t('generated').replace('{}', `${filename}.pptx`), 'ok'))
     .catch(err => setStatus(String(err), 'err'));
 }
+
+// ── Grade picker → input ──
+document.getElementById('grade-select').addEventListener('change', (e) => {
+  if (e.target.value) {
+    document.getElementById('grade').value = e.target.value;
+    autoSave();
+  }
+  e.target.value = ''; // reset picker so the same item can be chosen again
+});
 
 // ── Lang change ──
 document.getElementById('lang-select').addEventListener('change', (e) => {
