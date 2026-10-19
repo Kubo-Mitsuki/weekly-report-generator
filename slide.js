@@ -59,29 +59,20 @@ export function isImplausible(kind, text) {
 const runFont = (h) => ({ fontSize: h.fontSize, ...(h.bold ? { bold: true } : {}), fontFace: FONT, color: h.color });
 
 // 見出し。single があれば（旧の見た目。テスト専用）全体を1つの run にする。
-// なければ、日本語の行（札 + 続く文字）と英語の行を別々のテキストボックスに置く。
-// box: 見出しの枠、ja: { badge?, rest }（その他の見出しは札なし）、en: 英語の行、badgeFill: 札の色
-function addHeading(slide, box, ja, en, badgeFill, heading) {
+// なければ、日本語の行（週の語 + 続く文字）と英語の行を別々のテキストボックスに置く。
+// box: 見出しの枠、ja: { word?, rest }（その他の見出しは週の語なし）、en: 英語の行、wordColor: 週の語の色
+function addHeading(slide, box, ja, en, wordColor, heading) {
   if (heading.single) {
-    const label = `${ja.badge || ''}${ja.rest}\n${en}`;
+    const label = `${ja.word || ''}${ja.rest}\n${en}`;
     slide.addText([{ text: label, options: runFont(heading.single) }], { ...box, valign: LABEL_VALIGN });
     return;
   }
   const H = heading;
   const plain = { margin: 0, valign: LABEL_VALIGN, fontFace: FONT };
-  let x = box.x;
-  if (ja.badge) {
-    slide.addText(ja.badge, {
-      x, y: box.y, w: H.badge.w, h: H.badge.h,
-      fill: { color: badgeFill }, align: 'center', ...plain,
-      fontSize: H.badge.fontSize, bold: H.badge.bold, color: H.badge.color,
-    });
-    x += H.badge.w + H.gap;
-  }
-  slide.addText(ja.rest, {
-    x, y: box.y, w: box.x + box.w - x, h: H.badge.h, ...plain,
-    fontSize: H.ja.fontSize, bold: H.ja.bold, color: H.ja.color,
-  });
+  const runs = [];
+  if (ja.word) runs.push({ text: ja.word, options: runFont({ ...H.word, color: wordColor }) });
+  runs.push({ text: ja.rest, options: runFont(H.ja) });
+  slide.addText(runs, { x: box.x, y: box.y, w: box.w, h: H.jaH, ...plain });
   slide.addText(en, {
     x: box.x, y: box.y + H.enY, w: box.w, h: H.enH, ...plain,
     fontSize: H.en.fontSize, bold: H.en.bold, color: H.en.color,

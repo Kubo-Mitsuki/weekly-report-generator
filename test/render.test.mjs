@@ -7,7 +7,7 @@ import { buildSlide as buildSlideLegacy, parseDate, fmtMD } from '../legacy/old_
 import { comparePptx } from '../tools/compare_pptx.mjs';
 import { fixtures, render } from '../tools/test_helpers.mjs';
 
-// 旧の見た目: 両週とも旧の青、その他も旧の緑、見出しは1つのまとまりで18pt・灰・細字（札なし）、達成度に % を足さない
+// 旧の見た目: 両週とも旧の青、その他も旧の緑、見出しは1つのまとまりで18pt・灰・細字、達成度に % を足さない
 const OLD_BLUE = { accent: '156082', bandDark: 'D0DCE5', bandLight: 'E8EEF2' };
 const OLD_GREEN = { accent: '196B24', bandDark: 'D1DFD3', bandLight: 'E8EFE9' };
 const LEGACY_OPTS = {
@@ -89,38 +89,41 @@ function shapes(xml) {
 }
 const find = (list, text) => list.find(s => s.text === text);
 
-test('見出しの札: 週の色の四角の上に白の太字20ptで「先週」「今週」', async () => {
-  for (const [n, week, badge, accent] of [[1, 'last', '先週', THEMES.last.accent], [2, 'this', '今週', THEMES.this.accent]]) {
+// <a:r> ごとの文字・大きさ・太字・色
+function runs(spXml) {
+  return [...spXml.matchAll(/<a:r><a:rPr([^>]*)>(?:<a:solidFill><a:srgbClr val="([0-9A-F]{6})"\/><\/a:solidFill>)?[\s\S]*?<a:t>([^<]*)<\/a:t><\/a:r>/g)]
+    .map(m => ({ attrs: m[1], color: m[2], text: unescapeXml(m[3]) }));
+}
+
+test('見出しの「先週」「今週」は週の色の太字20pt、続く文字は18pt・細字・黒（塗りの四角は使わない）', async () => {
+  for (const [n, week, accent] of [[1, 'last', THEMES.last.accent], [2, 'this', THEMES.this.accent]]) {
     const list = shapes(await slideXml(fixtures()[1].data, n));
-    const b = find(list, badge);
-    assert.ok(b, `${badge} の札がある`);
-    assert.equal(b.fill, accent);
-    assert.match(b.rPr[1], /sz="2000"/); assert.match(b.rPr[1], /b="1"/); assert.equal(b.rPr[2], 'FFFFFF');
-    // 枠 SLIDE_LABEL.box の左上にそろう
-    assert.deepEqual(b.off, [emu(SLIDE_LABEL.box.x), emu(SLIDE_LABEL.box.y)]);
-    assert.deepEqual(b.ext, [emu(HEADING.badge.w), emu(HEADING.badge.h)]);
-    // 札のすぐ右に「の目標とその進捗」18pt・細字・黒
-    const rest = find(list, TEXT.weekHeading[week].rest);
-    assert.ok(rest);
-    assert.match(rest.rPr[1], /sz="1800"/); assert.doesNotMatch(rest.rPr[1], /b="1"/); assert.equal(rest.rPr[2], '000000');
-    assert.equal(rest.off[0], emu(SLIDE_LABEL.box.x + HEADING.badge.w + HEADING.gap));
-    assert.equal(rest.off[1], b.off[1]);
-    assert.equal(rest.fill, undefined);
-    // 札の下の行に英語。16pt・細字・灰で、札にしない
-    const en = find(list, TEXT.weekHeading[week].en);
+    const wk = TEXT.weekHeading[week];
+    const ja = find(list, `${wk.word}|${wk.rest}`);
+    assert.ok(ja, `${wk.word} の見出しがある`);
+    assert.equal(ja.fill, undefined);
+    assert.deepEqual(ja.off, [emu(SLIDE_LABEL.box.x), emu(SLIDE_LABEL.box.y)]);
+    assert.deepEqual(ja.ext, [emu(SLIDE_LABEL.box.w), emu(HEADING.jaH)]);
+    const [word, rest] = runs(ja.xml);
+    assert.equal(word.text, wk.word);
+    assert.match(word.attrs, /sz="2000"/); assert.match(word.attrs, /b="1"/); assert.equal(word.color, accent);
+    assert.equal(rest.text, wk.rest);
+    assert.match(rest.attrs, /sz="1800"/); assert.doesNotMatch(rest.attrs, /b="1"/); assert.equal(rest.color, '000000');
+    // 下の行に英語。16pt・細字・灰
+    const en = find(list, wk.en);
     assert.ok(en);
     assert.match(en.rPr[1], /sz="1600"/); assert.doesNotMatch(en.rPr[1], /b="1"/); assert.equal(en.rPr[2], '333333');
     assert.equal(en.fill, undefined);
-    assert.equal(en.off[0], b.off[0]);
-    assert.ok(en.off[1] >= b.off[1] + b.ext[1]);
-    // 強調表示（highlight）は使わない
+    assert.equal(en.off[0], ja.off[0]);
+    assert.ok(en.off[1] >= ja.off[1] + ja.ext[1]);
+    // 強調表示（highlight）も使わない
     assert.ok(!list.some(s => s.xml.includes('<a:highlight')));
   }
 });
 
-test('「その他取り組むこと」の見出しは目標の見出しと同じ段（日本語18pt・黒、英語16pt・灰、札なし）', async () => {
+test('「その他取り組むこと」の見出しは目標の見出しと同じ段（日本語18pt・黒、英語16pt・灰）', async () => {
   const list = shapes(await slideXml(fixtures()[1].data, 2));
-  const rest = find(list, TEXT.weekHeading.this.rest);
+  const rest = find(list, `${TEXT.weekHeading.this.word}|${TEXT.weekHeading.this.rest}`);
   const en = find(list, TEXT.weekHeading.this.en);
   const ja2 = find(list, TEXT.othersHeading.ja);
   const en2 = find(list, TEXT.othersHeading.en);

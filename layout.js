@@ -7,7 +7,7 @@ export const SLIDE_LAYOUT = 'LAYOUT_WIDE';
 export const FONT = 'Yu Gothic';
 
 // 3色（青・橙・緑）は OKLCH で明るさと鮮やかさをそろえた組。白い文字との比は 青6.5・橙3.5・緑6.0。
-// accent は見出しの札・在室時間の表と目標の表の見出し、bandDark / bandLight は表の縞（濃・淡）。
+// accent は見出しの「先週」「今週」の文字・在室時間の表と目標の表の見出し、bandDark / bandLight は表の縞（濃・淡）。
 // 先週は青、今週は橙。「その他」の表は週によらず緑（OTHERS_THEME）。
 export const THEMES = {
   last: { accent: '2C6194', bandDark: 'D4E1EF', bandLight: 'EBF1F7' },
@@ -41,10 +41,10 @@ export const ROWS = {
 
 // ── 固定の文字列 ──
 export const TEXT = {
-  // 目標の表の上の見出し。badge は週の色の札、rest は札に続く文字、en は札の下の英語の行
+  // 目標の表の上の見出し。word は週の色で塗る語、rest はそれに続く文字、en は下の英語の行
   weekHeading: {
-    last: { badge: '先週', rest: 'の目標とその進捗', en: 'Last week\'s goals and progress' },
-    this: { badge: '今週', rest: 'の目標とその進捗', en: 'This week\'s goals and progress' },
+    last: { word: '先週', rest: 'の目標とその進捗', en: 'Last week\'s goals and progress' },
+    this: { word: '今週', rest: 'の目標とその進捗', en: 'This week\'s goals and progress' },
   },
   othersHeading: { ja: 'その他取り組むこと', en: 'What else I will do' },
   dateHeader: 'Date',
@@ -78,17 +78,17 @@ export const ATTENDANCE_TABLE = {
   fontSize: 18,
 };
 
-// 見出し（「先週／今週の目標とその進捗」）の枠。札はこの枠の左上にそろえる
+// 見出し（「先週／今週の目標とその進捗」）の枠
 export const SLIDE_LABEL = {
   box: { x: 0.28, y: 1.47, w: 8.96, h: 0.82 },
 };
 
-// 見出しの文字と札。日本語の行（札 + 続く文字）の高さは badge.h、英語の行はその下
+// 見出しの文字。日本語の行（週の語 + 続く文字）の高さは jaH、英語の行はその下
 export const HEADING = {
-  badge: { w: 0.86, h: 0.40, fontSize: 20, bold: true, color: COLOR_WHITE },  // 札（週の色で塗る）。w は2文字 + 左右の余白
-  ja: { fontSize: 18, bold: false, color: COLOR_BLACK },    // 札に続く文字・その他の見出しの日本語の行
+  word: { fontSize: 20, bold: true },                       // 「先週」「今週」。色は週の色（THEMES.*.accent）
+  ja: { fontSize: 18, bold: false, color: COLOR_BLACK },    // 週の語に続く文字・その他の見出しの日本語の行
   en: { fontSize: 16, bold: false, color: COLOR_LABEL },    // 英語の行
-  gap: 0.06,      // 札と続く文字の間
+  jaH: 0.40,      // 日本語の行の高さ
   enY: 0.42,      // 枠の上端から英語の行の上端まで
   enH: 0.30,      // 英語の行の高さ
 };

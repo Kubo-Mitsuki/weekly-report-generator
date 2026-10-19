@@ -724,19 +724,28 @@ function textBox(parent, box, valign, inset = BOX_INSET) {
 
 const NO_INSET = { x: 0, y: 0 };
 
-// 見出しの日本語の行（枠の左上から indent だけ右）と英語の行
-function headingLines(parent, box, indent, ja, en) {
+// 見出しの日本語の行（週の語 + 続く文字）と英語の行（slide.js の addHeading と同じ置き方）
+function headingLines(parent, box, ja, en, wordColor) {
   const H = L.HEADING;
-  const put = (rect, text, f) => {
-    const b = textBox(parent, rect, L.LABEL_VALIGN, NO_INSET);
-    const d = el('div', 'line', b);
-    d.textContent = text;
+  const font = (d, f) => {
     d.style.fontSize = ptpx(f.fontSize);
     d.style.fontWeight = f.bold ? '700' : '400';
     d.style.color = '#' + f.color;
   };
-  put({ x: box.x + indent, y: box.y, w: box.w - indent, h: H.badge.h }, ja, H.ja);
-  put({ x: box.x, y: box.y + H.enY, w: box.w, h: H.enH }, en, H.en);
+  const jb = textBox(parent, { x: box.x, y: box.y, w: box.w, h: H.jaH }, L.LABEL_VALIGN, NO_INSET);
+  const jl = el('div', 'line', jb);
+  if (ja.word) {
+    const w = el('span', '', jl);
+    w.textContent = ja.word;
+    font(w, { ...H.word, color: wordColor });
+  }
+  const r = el('span', '', jl);
+  r.textContent = ja.rest;
+  font(r, H.ja);
+  const eb = textBox(parent, { x: box.x, y: box.y + H.enY, w: box.w, h: H.enH }, L.LABEL_VALIGN, NO_INSET);
+  const enLine = el('div', 'line', eb);
+  enLine.textContent = en;
+  font(enLine, H.en);
 }
 
 function buildSurface() {
@@ -782,15 +791,9 @@ function buildSurface() {
   }
   makeTable(surface, att, attRows);
 
-  // 目標の表の見出し: 週の色の札 + 続く文字、その下に英語の行（slide.js の addHeading と同じ置き方）
-  const H = L.HEADING;
-  const sbox = L.SLIDE_LABEL.box;
+  // 目標の表の見出し: 週の色の「先週」「今週」+ 続く文字、その下に英語の行
   const wk = L.TEXT.weekHeading[activeWeek];
-  const badge = textBox(surface, { x: sbox.x, y: sbox.y, w: H.badge.w, h: H.badge.h }, L.LABEL_VALIGN, NO_INSET);
-  badge.style.background = '#' + th.accent;
-  badge.style.alignItems = 'center';
-  lines(badge, [wk.badge, H.badge]);
-  headingLines(surface, sbox, H.badge.w + H.gap, wk.rest, wk.en);
+  headingLines(surface, L.SLIDE_LABEL.box, wk, wk.en, th.accent);
 
   // 目標の表
   const gt = L.GOALS_TABLE;
@@ -810,7 +813,7 @@ function buildSurface() {
   makeTable(surface, gt, goalRows);
 
   // その他取り組むこと
-  headingLines(surface, L.OTHERS_LABEL.box, 0, L.TEXT.othersHeading.ja, L.TEXT.othersHeading.en);
+  headingLines(surface, L.OTHERS_LABEL.box, { rest: L.TEXT.othersHeading.ja }, L.TEXT.othersHeading.en);
   const ot = L.OTHERS_TABLE;
   const OT = L.OTHERS_THEME;
   const otherRows = [[{ fill: OT.accent, color: L.COLOR_WHITE, bold: L.CELL.headerBold, align: L.CELL.align, text: L.TEXT.summaryHeader }]];
