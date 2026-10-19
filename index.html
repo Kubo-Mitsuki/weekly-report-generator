@@ -157,6 +157,7 @@ button.btn-primary:active { transform: scale(0.97); }
 }
 .btn-quiet:hover { background: var(--surface2); }
 .btn-quiet:active { transform: scale(0.97); }
+.btn-quiet:disabled { opacity: 0.4; cursor: not-allowed; background: transparent; transform: none; }
 .btn-help {
   width: 22px; height: 22px;
   border-radius: 50%;
@@ -357,6 +358,8 @@ button.btn-primary:active { transform: scale(0.97); }
     <button class="btn-quiet" id="btn-json-export" type="button" onclick="exportJson()">JSONを書き出す</button>
     <button class="btn-quiet" id="btn-json-import" type="button" onclick="$('json-file').click()">JSONを読み込む</button>
     <input type="file" id="json-file" accept=".json,application/json" hidden>
+    <button class="btn-quiet" id="btn-undo" type="button" title="Ctrl+Z" onclick="undo()" disabled>元に戻す</button>
+    <button class="btn-quiet" id="btn-redo" type="button" title="Ctrl+Y" onclick="redo()" disabled>やり直す</button>
     <span class="status" id="status" role="status" aria-live="polite"></span>
   </div>
 
@@ -524,6 +527,8 @@ function applyLang() {
   $('btn-gen').textContent = l.btn_gen;
   $('btn-json-export').textContent = l.json_export;
   $('btn-json-import').textContent = l.json_import;
+  $('btn-undo').textContent = l.undo;
+  $('btn-redo').textContent = l.redo;
   $('carry-label').textContent = l.carry_label;
   $('btn-carry-move').textContent = l.carry_move;
   $('btn-carry-copy').textContent = l.carry_copy;
@@ -639,7 +644,9 @@ function registerEditable(c, def) {
       model[activeWeek][rec.kind][rec.i] = ta.value;
       fit(rec);
       updateNotes();
+      touch();
     });
+    ta.addEventListener('blur', commit);
     c.addEventListener('click', () => { if (document.activeElement !== ta) ta.focus(); });
   }
   showValue(rec);
@@ -900,10 +907,13 @@ $('pop-range').addEventListener('input', (e) => {
   $('pop-text').value = e.target.value;
   setNumeric(e.target.value);
 });
+$('pop-range').addEventListener('change', commit);
 $('pop-text').addEventListener('input', (e) => {
   syncFromInput($('pop-range'), e.target);
   setNumeric(e.target.value);
+  touch();
 });
+$('pop-text').addEventListener('blur', commit);
 $('pop').addEventListener('keydown', (e) => {
   if (e.key === 'Escape' || e.key === 'Enter') { const r = popRec; closePop(); if (r) r.el.focus(); }
 });
@@ -1047,6 +1057,7 @@ function hasGoalsInLastWeek() {
 }
 
 function carryGoals(mode) {
+  commit(); // 打ちかけの文字は、引き継ぎとは別の1段にする
   if (hasGoalsInLastWeek()) {
     if (!confirm(t('carry_confirm'))) return;
   }
@@ -1066,7 +1077,7 @@ function carryGoals(mode) {
     setStatus(t('carry_done_copy'), 'ok');
   }
   if (L) buildSurface();
-  autoSave();
+  commit();
 }
 
 // ── JSON の書き出し・読み込み（collectData() の形。CLI の入力と同じ） ──
@@ -1093,6 +1104,7 @@ function importFail(reason) {
 function importData(data) {
   const problems = S.validateImport(data);
   if (problems.length) { importFail(formatProblems(problems)); return; }
+  commit();
   const str = (v) => v == null ? '' : String(v);
   $('grade').value = str(data.grade);
   $('name-ja-sei').value = str(data.name_ja_sei);
@@ -1109,7 +1121,7 @@ function importData(data) {
   fillWeek('this', data.this_week || {});
   applyLang();
   buildSurface();
-  autoSave();
+  commit();
   setStatus(t('json_loaded'), 'ok');
 }
 
@@ -1152,7 +1164,7 @@ async function generate() {
 $('grade-select').addEventListener('change', (e) => {
   if (e.target.value) {
     $('grade').value = e.target.value;
-    autoSave();
+    commit();
   }
   e.target.value = ''; // reset picker so the same item can be chosen again
 });
@@ -1170,6 +1182,89 @@ for (const id of ['base-date', 'name-ja-sei', 'name-ja-mei', 'name-en']) {
 }
 $('base-date').addEventListener('change', refreshStatic);
 $('base-date').addEventListener('blur', refreshStatic);
+for (const id of ['grade', 'name-ja-sei', 'name-ja-mei', 'name-en', 'base-date']) {
+  $(id).addEventListener('input', touch);
+  $(id).addEventListener('blur', commit);
+}
+$('fn-format').addEventListener('change', commit);
+
+// ── 元に戻す・やり直す ──
+// 履歴に積む「状態」は、週の model（両週・空の行も含む）と、面の上の欄をまとめた1つの写し（JSON の文字列）。
+// 表示言語・タブは含めない。ページを開き直すと消える（自動保存には入れない）
+const HISTORY_MAX = 100;   // 戻れる段数
+const TYPING_MS = 700;     // 文字を打つのが止まって1段にするまで
+const STATE_FIELDS = { grade: 'grade', sei: 'name-ja-sei', mei: 'name-ja-mei', en: 'name-en', date: 'base-date', fn: 'fn-format' };
+let history = [];
+let historyIdx = -1;
+let typingTimer = null;
+
+function captureState() {
+  const fields = {};
+  for (const [k, id] of Object.entries(STATE_FIELDS)) fields[k] = $(id).value;
+  return JSON.stringify({ model: { last: model.last, this: model.this }, fields });
+}
+
+function applyState(str) {
+  const st = JSON.parse(str);
+  model.last = st.model.last;
+  model.this = st.model.this;
+  for (const [k, id] of Object.entries(STATE_FIELDS)) $(id).value = st.fields[k];
+  closePop();
+  cells.forEach(showValue);
+  refreshStatic();
+  fitAll();
+}
+
+// 今の状態を1段として積む。直前と同じなら積まない。戻したあとの編集は、やり直しの履歴を捨てる
+function commit() {
+  clearTimeout(typingTimer);
+  typingTimer = null;
+  if (!S) return;
+  const now = captureState();
+  if (historyIdx >= 0 && history[historyIdx] === now) { updateHistoryButtons(); return; }
+  history.length = historyIdx + 1;
+  history.push(now);
+  if (history.length > HISTORY_MAX + 1) history.shift();
+  historyIdx = history.length - 1;
+  autoSave();
+  updateHistoryButtons();
+}
+
+// 文字の入力: 打つのが0.7秒止まったら1段（欄を離れたときは commit が呼ばれる）
+function touch() {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(commit, TYPING_MS);
+  updateHistoryButtons();
+}
+
+function goHistory(step) {
+  commit(); // 打ちかけの文字があれば、1段として確定させてから動く
+  const to = historyIdx + step;
+  if (to < 0 || to >= history.length) return;
+  historyIdx = to;
+  applyState(history[historyIdx]);
+  autoSave();
+  updateHistoryButtons();
+}
+function undo() { goHistory(-1); }
+function redo() { goHistory(1); }
+
+function updateHistoryButtons() {
+  const dirty = historyIdx >= 0 && history[historyIdx] !== captureState();
+  $('btn-undo').disabled = !(historyIdx > 0 || dirty);
+  $('btn-redo').disabled = !(historyIdx < history.length - 1) || dirty;
+}
+
+// document の捕捉の段階で受ける。セルの編集中でも、ブラウザ標準の取り消しは止めて、この履歴で戻す
+document.addEventListener('keydown', (e) => {
+  if (e.isComposing || e.keyCode === 229) return;
+  if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+  const k = e.key.toLowerCase();
+  const step = k === 'z' ? (e.shiftKey ? 1 : -1) : (k === 'y' && !e.shiftKey ? 1 : 0);
+  if (!step) return;
+  e.preventDefault();
+  goHistory(step);
+}, true);
 
 // ── Auto-save on unload ──
 window.addEventListener('beforeunload', autoSave);
@@ -1192,6 +1287,7 @@ async function init() {
   buildSurface();
   new ResizeObserver(() => syncScale()).observe($('surface'));
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+  commit(); // 開いた直後の状態が出発点（これより前には戻らない）
 }
 
 init().catch(err => setStatus(String(err), 'err'));
