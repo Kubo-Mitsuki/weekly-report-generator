@@ -40,7 +40,7 @@ body {
 h1 { font-size: 1.1rem; font-weight: 600; }
 
 .row { display: flex; gap: 6px 12px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
-label { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+label { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
 input, select, textarea {
   background: var(--input-bg);
   border: 1px solid var(--border);
@@ -48,7 +48,7 @@ input, select, textarea {
   border-radius: 4px;
   padding: 4px 6px;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 14px;
 }
 input:focus, select:focus, textarea:focus {
   outline: none;
@@ -62,7 +62,7 @@ select { cursor: pointer; }
 .field input.short { width: 76px; }
 .field select.short { width: 90px; }
 .field input.date { width: 110px; }
-.field select.fn-select { width: 160px; }
+.field select.fn-select { width: 190px; }
 
 .combo {
   position: relative;
@@ -101,6 +101,39 @@ select { cursor: pointer; }
 }
 .combo:hover::after { color: var(--text); }
 
+/* 面の上の操作の行: 「出力」・JSON・状態表示 */
+.ops-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+button.btn-primary {
+  background: var(--success);
+  color: #fff;
+  border: none;
+  padding: 7px 24px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+button.btn-primary:hover { background: var(--success-hover); }
+button.btn-primary:active { transform: scale(0.97); }
+.status {
+  flex: 1;
+  min-width: 220px;
+  font-size: 14px;
+  color: var(--text-muted);
+  min-height: 1.2em;
+  overflow-wrap: anywhere;
+}
+.status.ok { color: var(--success); }
+.status.err { color: var(--danger); }
+
 /* 面の上の操作の行（目標の引き継ぎ） */
 .carry-row {
   position: relative;
@@ -110,27 +143,27 @@ select { cursor: pointer; }
   gap: 8px;
   margin: 8px 0;
 }
-.carry-label { font-size: 0.8rem; color: var(--text-muted); margin-right: 4px; }
+.carry-label { font-size: 13px; color: var(--text-muted); margin-right: 4px; }
 .carry-row .spacer { flex: 1; }
-.btn-carry {
-  background: var(--accent);
-  color: #fff;
-  border: none;
+.btn-quiet {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
   padding: 5px 12px;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 13px;
   cursor: pointer;
   font-family: inherit;
 }
-.btn-carry:hover { background: var(--accent-hover); }
-.btn-carry:active { transform: scale(0.97); }
+.btn-quiet:hover { background: var(--surface2); }
+.btn-quiet:active { transform: scale(0.97); }
 .btn-help {
   width: 22px; height: 22px;
   border-radius: 50%;
   background: var(--surface2);
   color: var(--text-muted);
   border: 1px solid var(--border);
-  font-size: 0.8rem;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
@@ -151,7 +184,7 @@ select { cursor: pointer; }
   border: 1px solid var(--accent);
   border-radius: 6px;
   padding: 10px 12px;
-  font-size: 0.82rem;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--text);
   z-index: 20;
@@ -218,7 +251,8 @@ select { cursor: pointer; }
 #surface .ed:hover { outline: 2px solid #378ADD; outline-offset: -2px; }
 #surface .ed.sel, #surface .ed:focus-within { outline: 2px solid #185FA5; outline-offset: -2px; }
 #surface .ed:focus-within { overflow: visible; z-index: 3; }
-#surface .ed.over, #surface .ed.over:hover, #surface .ed.over:focus-within { outline: 2px solid #E24B4A; outline-offset: -2px; }
+#surface .ed.over, #surface .ed.over:hover, #surface .ed.over:focus-within,
+#surface .ed.warn, #surface .ed.warn:hover, #surface .ed.warn:focus-within { outline: 2px solid #E24B4A; outline-offset: -2px; }
 #surface textarea.val {
   display: block;
   border: 0;
@@ -254,31 +288,8 @@ select { cursor: pointer; }
 #pop input[type="text"] { width: 52px; text-align: center; }
 #pop .unit { font-size: 0.85rem; color: var(--text-muted); min-width: 1ch; }
 
-.note { margin-top: 6px; font-size: 0.85rem; color: var(--danger); min-height: 1.2em; }
-
-.btn-row { display: flex; justify-content: flex-end; margin-top: 8px; gap: 8px; }
-button.gen {
-  background: var(--success);
-  color: #fff;
-  border: none;
-  padding: 10px 28px;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-button.gen:hover { background: var(--success-hover); }
-button.gen:active { transform: scale(0.97); }
-
-.status {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  min-height: 1.2em;
-}
-.status.ok { color: var(--success); }
-.status.err { color: var(--danger); }
+.note { margin-top: 6px; font-size: 14px; color: var(--danger); min-height: 1.2em; }
+.note div + div { margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -341,16 +352,20 @@ button.gen:active { transform: scale(0.97); }
     </div>
   </div>
 
+  <div class="ops-row">
+    <button class="btn-primary" id="btn-gen" type="button" onclick="generate()">出力</button>
+    <button class="btn-quiet" id="btn-json-export" type="button" onclick="exportJson()">JSONを書き出す</button>
+    <button class="btn-quiet" id="btn-json-import" type="button" onclick="$('json-file').click()">JSONを読み込む</button>
+    <input type="file" id="json-file" accept=".json,application/json" hidden>
+    <span class="status" id="status" role="status" aria-live="polite"></span>
+  </div>
+
   <div class="carry-row">
     <span class="carry-label" id="carry-label">目標の引き継ぎ:</span>
-    <button class="btn-carry" id="btn-carry-move" type="button" onclick="carryGoals('move')">今週の目標を先週へ移動</button>
-    <button class="btn-carry" id="btn-carry-copy" type="button" onclick="carryGoals('copy')">今週の目標を先週へコピー</button>
+    <button class="btn-quiet" id="btn-carry-copy" type="button" onclick="carryGoals('copy')">今週の目標を先週へコピー</button>
+    <button class="btn-quiet" id="btn-carry-move" type="button" onclick="carryGoals('move')">今週の目標を先週へ移動</button>
     <button class="btn-help" onclick="toggleHelp(this)" type="button" aria-label="help">?</button>
     <div class="help-pop" hidden><div id="carry-help-text"></div></div>
-    <span class="spacer"></span>
-    <button class="btn-carry" id="btn-json-export" type="button" onclick="exportJson()">JSONを書き出す</button>
-    <button class="btn-carry" id="btn-json-import" type="button" onclick="$('json-file').click()">JSONを読み込む</button>
-    <input type="file" id="json-file" accept=".json,application/json" hidden>
   </div>
 
   <div class="tabs">
@@ -369,18 +384,17 @@ button.gen:active { transform: scale(0.97); }
       </div>
     </div>
   </div>
-  <div class="note" id="overflow-note"></div>
-
-  <div class="btn-row">
-    <button class="gen" id="btn-gen" onclick="generate()">出力</button>
-  </div>
-  <div class="status" id="status"></div>
+  <div class="note" id="notes"></div>
 </div>
 
 <script>
 // ── i18n ──
 const T = {
   ja: {
+    undo:"元に戻す", redo:"やり直す",
+    err_more:" ほか {} 件", other_week:"（もう一方の週にあります）",
+    warn_empty_goal:"目標が空の行は出力されません",
+    warn_hours:"在室時間は0〜24の数字で入力してください", warn_ach:"達成度は0〜100の数字で入力してください",
     title:"活動報告スライドメーカー", grade:"学年",
     name_ja_sei:"苗字", name_ja_mei:"名前", name_en:"ローマ字",
     base_date:"ゼミ実施日", lang:"言語 (Lang)",
@@ -404,6 +418,10 @@ const T = {
     generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
+    undo:"撤销", redo:"重做",
+    err_more:" 另有{}项", other_week:"（在另一周）",
+    warn_empty_goal:"目标为空的行不会输出",
+    warn_hours:"在室时间请输入0〜24的数字", warn_ach:"完成度请输入0〜100的数字",
     title:"活动报告幻灯片制作", grade:"年级",
     name_ja_sei:"姓", name_ja_mei:"名", name_en:"罗马字",
     base_date:"组会日期", lang:"语言 (Lang)",
@@ -427,6 +445,10 @@ const T = {
     generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
+    undo:"실행 취소", redo:"다시 실행",
+    err_more:" 외 {}건", other_week:"(다른 주에 있습니다)",
+    warn_empty_goal:"목표가 비어 있는 행은 출력되지 않습니다",
+    warn_hours:"재실시간은 0〜24의 숫자로 입력하세요", warn_ach:"달성도는 0〜100의 숫자로 입력하세요",
     title:"활동보고 슬라이드 메이커", grade:"학년",
     name_ja_sei:"성", name_ja_mei:"이름", name_en:"로마자",
     base_date:"세미나 실시일", lang:"언어 (Lang)",
@@ -450,6 +472,10 @@ const T = {
     generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
+    undo:"Undo", redo:"Redo",
+    err_more:" and {} more", other_week:" (in the other week)",
+    warn_empty_goal:"Rows with an empty goal are not output",
+    warn_hours:"Hours present must be a number from 0 to 24", warn_ach:"Progress must be a number from 0 to 100",
     title:"Activity Report Slide Maker", grade:"Grade",
     name_ja_sei:"Last Name", name_ja_mei:"First Name", name_en:"English Name",
     base_date:"Seminar Date", lang:"Lang",
@@ -504,7 +530,7 @@ function applyLang() {
   $('carry-help-text').textContent = l.carry_help;
   document.querySelectorAll('.app-help-text').forEach(e => e.textContent = l.app_help);
   if (popRec) $('pop-label').textContent = popLabel(popRec.kind);
-  updateNote();
+  updateNotes();
 }
 
 // ── Date helpers ──
@@ -612,7 +638,7 @@ function registerEditable(c, def) {
     ta.addEventListener('input', () => {
       model[activeWeek][rec.kind][rec.i] = ta.value;
       fit(rec);
-      updateNote();
+      updateNotes();
     });
     c.addEventListener('click', () => { if (document.activeElement !== ta) ta.focus(); });
   }
@@ -640,10 +666,44 @@ function fit(rec) {
   rec.el.classList.toggle('over', text !== '' && f.scrollHeight > inner + 1);
 }
 
-function fitAll() { cells.forEach(fit); updateNote(); }
+function fitAll() { cells.forEach(fit); updateNotes(); }
 
-function updateNote() {
-  $('overflow-note').textContent = cells.some(r => r.el.classList.contains('over')) ? t('overflow_note') : '';
+// 目標が空で、達成度か概要に何か入っている行（出力とJSONから外れる）
+function emptyGoalRow(week, i) {
+  const w = model[week];
+  return !w.g[i].trim() && !!(w.a[i].trim() || w.s[i].trim());
+}
+
+function hasEmptyGoalRows() {
+  return ['last', 'this'].some(wk => [0, 1, 2, 3].some(i => emptyGoalRow(wk, i)));
+}
+
+// 赤枠: 目標が空の行の目標のセル、在室時間・達成度のありえない値
+function isWarn(rec) {
+  if (rec.kind === 'g') return emptyGoalRow(activeWeek, rec.i);
+  if (rec.kind === 'h' || rec.kind === 'a') return S.isImplausible(rec.kind, model[activeWeek][rec.kind][rec.i]);
+  return false;
+}
+
+// 面の下の案内の行: 今の入力に残っている警告。種類ごとに1行（赤枠のセルがもう一方の週にだけあるときは、その旨を添える）
+function updateNotes() {
+  if (!S) return;
+  cells.forEach(r => r.el.classList.toggle('warn', isWarn(r)));
+  const lines = [];
+  if (cells.some(r => r.el.classList.contains('over'))) lines.push(t('overflow_note'));
+  const weeksWith = (test) => ['last', 'this'].filter(wk => [...Array(L.ROWS.days).keys()].some(i => test(wk, i)));
+  const kinds = [
+    ['warn_empty_goal', (wk, i) => i < L.ROWS.goals && emptyGoalRow(wk, i)],
+    ['warn_hours', (wk, i) => S.isImplausible('h', model[wk].h[i])],
+    ['warn_ach', (wk, i) => i < L.ROWS.goals && S.isImplausible('a', model[wk].a[i])],
+  ];
+  for (const [key, test] of kinds) {
+    const weeks = weeksWith(test);
+    if (weeks.length) lines.push(t(key) + (weeks.includes(activeWeek) ? '' : t('other_week')));
+  }
+  const box = $('notes');
+  box.textContent = '';
+  for (const l of lines) el('div', '', box).textContent = l;
 }
 
 function textBox(parent, box, valign, inset = BOX_INSET) {
@@ -833,7 +893,7 @@ function setNumeric(value) {
   model[activeWeek][popRec.kind][popRec.i] = value;
   showValue(popRec);
   fit(popRec);
-  updateNote();
+  updateNotes();
 }
 
 $('pop-range').addEventListener('input', (e) => {
@@ -949,6 +1009,19 @@ function fillWeek(key, sec) {
   model[key] = w;
 }
 
+// 問題の配列 [{ field, message }] を、最初の1件の message と「ほか N 件」にする
+function formatProblems(problems) {
+  const more = problems.length > 1 ? t('err_more').replace('{}', problems.length - 1) : '';
+  return problems[0].message + more;
+}
+
+// 入力エラーのとき、該当する欄へカーソルを移す（件数や形の問題には欄が無いので動かさない）
+const PROBLEM_FIELD = { name: 'name-ja-sei', name_en: 'name-en', date: 'base-date' };
+function focusProblem(problem) {
+  const id = PROBLEM_FIELD[problem.field];
+  if (id) $(id).focus();
+}
+
 function setStatus(msg, cls) {
   const el = $('status');
   el.textContent = msg;
@@ -1019,7 +1092,7 @@ function importFail(reason) {
 // 読み込めるものだけ画面に入れる。拒否したときは画面を変えない
 function importData(data) {
   const problems = S.validateImport(data);
-  if (problems.length) { importFail(problems.map(p => `${p.field}: ${p.message}`).join(' / ')); return; }
+  if (problems.length) { importFail(formatProblems(problems)); return; }
   const str = (v) => v == null ? '' : String(v);
   $('grade').value = str(data.grade);
   $('name-ja-sei').value = str(data.name_ja_sei);
@@ -1057,14 +1130,19 @@ async function generate() {
     const { validate, buildDeck, fileNameFor } = await import('./slide.js');
 
     const problems = validate(data);
-    if (problems.length) { setStatus(t('err_input') + ': ' + problems[0].field, 'err'); return; }
+    if (problems.length) {
+      setStatus(t('err_input') + ': ' + formatProblems(problems), 'err');
+      focusProblem(problems[0]);
+      return;
+    }
 
     const pptx = new PptxGenJS();
     buildDeck(pptx, data);
 
     const filename = fileNameFor(data);
     await pptx.writeFile({ fileName: `${filename}.pptx` });
-    setStatus(t('generated').replace('{}', `${filename}.pptx`), 'ok');
+    const skipped = hasEmptyGoalRows() ? ' ' + t('warn_empty_goal') : '';
+    setStatus(t('generated').replace('{}', `${filename}.pptx`) + skipped, 'ok');
   } catch (err) {
     setStatus(String(err), 'err');
   }

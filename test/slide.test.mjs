@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validate, validateImport, fileNameFor, formatAchievement } from '../slide.js';
+import { validate, validateImport, fileNameFor, formatAchievement, isImplausible } from '../slide.js';
 import { fixtures } from '../tools/test_helpers.mjs';
 
 test('フィクスチャはすべて検査を通る', () => {
@@ -91,4 +91,12 @@ test('formatAchievement: 数字だけのときは % を付け、それ以外は�
   for (const v of ['90%', '約90', '', ' ', '９０', '.5', '90.', '1e2', '-1', undefined, null]) {
     assert.equal(formatAchievement(v), v == null ? '' : v, JSON.stringify(v));
   }
+});
+
+test('isImplausible: 在室時間 0〜24・達成度 0〜100（空は問題なし）', () => {
+  for (const v of ['', ' ', '0', '8', '7.5', ' 24 ', '24.0']) assert.equal(isImplausible('h', v), false, `h ${JSON.stringify(v)}`);
+  for (const v of ['-1', '25', '26', 'abc', '８', '8h', '8%', '1e1', '.5', '8.']) assert.equal(isImplausible('h', v), true, `h ${JSON.stringify(v)}`);
+  for (const v of ['', '0', '90', '90%', ' 90% ', '100', '100%', '99.5', '0%']) assert.equal(isImplausible('a', v), false, `a ${JSON.stringify(v)}`);
+  for (const v of ['120', '101', '-1', 'abc', '９０', '90%%', '%', '約90', '90 %', '100.5']) assert.equal(isImplausible('a', v), true, `a ${JSON.stringify(v)}`);
+  assert.equal(isImplausible('h', undefined), false);
 });

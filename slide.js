@@ -44,6 +44,17 @@ export function formatAchievement(v) {
   return /^\d+(\.\d+)?$/.test(trimmed) ? `${trimmed}%` : s;
 }
 
+// 画面の警告: 在室時間（kind 'h'、0〜24）・達成度（kind 'a'、0〜100）のありえない値か。空は問題なし。
+// 前後の空白を除き、達成度は末尾の % を1つ除いた値で判定する
+const VALUE_RANGE = { h: 24, a: 100 };
+export function isImplausible(kind, text) {
+  let s = (text == null ? '' : String(text)).trim();
+  if (s === '') return false;
+  if (kind === 'a' && s.endsWith('%')) s = s.slice(0, -1);
+  if (!/^\d+(\.\d+)?$/.test(s)) return true;
+  return Number(s) > VALUE_RANGE[kind];
+}
+
 // 見出しの文字の書式（pptxgenjs の run の options）
 const runFont = (h) => ({ fontSize: h.fontSize, ...(h.bold ? { bold: true } : {}), fontFace: FONT, color: h.color });
 
