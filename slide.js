@@ -26,9 +26,10 @@ export function fmtMD(d) {
   return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
 }
 
+// 今週 = 基準日〜6日後、先週 = 基準日の7日前〜前日（MM/DD の配列）
 export function weekDates(base, before) {
   const dates = [];
-  for (let i = before ? -7 : 1; i <= (before ? -1 : 7); i++) {
+  for (let i = before ? -7 : 0; i <= (before ? -1 : 6); i++) {
     const d = new Date(base);
     d.setDate(d.getDate() + i);
     dates.push(fmtMD(d));
