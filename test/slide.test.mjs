@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validate, fileNameFor } from '../slide.js';
+import { validate, validateImport, fileNameFor } from '../slide.js';
 import { fixtures } from '../tools/test_helpers.mjs';
 
 test('フィクスチャはすべて検査を通る', () => {
@@ -41,4 +41,45 @@ test('fileNameFor', () => {
   assert.equal(fileNameFor({ ...d, fn_format: 'sei_mei' }), 'B4_山田_太郎');
   assert.equal(fileNameFor({ ...d, grade: '' }), '山田');
   assert.equal(fileNameFor({ ...d, grade: '​ B4 ﻿', name_ja_sei: '山 田/x' }), 'B4_山_田_x');
+});
+
+test('validate: 形の検査（出力・CLI）', () => {
+  const base = fixtures()[0].data;
+  const { last_week, ...noLast } = base;
+  assert.deepEqual(validate(noLast).map(p => p.field), ['last_week']);
+  const { this_week, ...noThis } = base;
+  assert.deepEqual(validate(noThis).map(p => p.field), ['this_week']);
+  assert.deepEqual(validate({ ...base, last_week: null }).map(p => p.field), ['last_week']);
+  assert.deepEqual(validate({ ...base, this_week: [] }).map(p => p.field), ['this_week']);
+  assert.deepEqual(validate({ ...base, last_week: { ...last_week, goals: 'x' } }).map(p => p.field), ['last_week.goals']);
+  assert.deepEqual(validate({ ...base, this_week: { ...this_week, hours: {} } }).map(p => p.field), ['this_week.hours']);
+  assert.deepEqual(validate({ ...base, last_week: { ...last_week, others: null } }).map(p => p.field), ['last_week.others']);
+  for (const bad of [null, [], 'x', 3]) assert.equal(validate(bad).length, 1);
+});
+
+test('validateImport: 拒否するもの', () => {
+  const base = fixtures()[0].data;
+  for (const bad of [null, [], 'x', 3]) assert.equal(validateImport(bad).length, 1);
+  assert.deepEqual(validateImport({ ...base, last_week: 'x' }).map(p => p.field), ['last_week']);
+  assert.deepEqual(validateImport({ ...base, this_week: null }).map(p => p.field), ['this_week']);
+  assert.deepEqual(validateImport({ ...base, this_week: { hours: 'x' } }).map(p => p.field), ['this_week.hours']);
+  assert.deepEqual(validateImport({ ...base, last_week: { goals: {} } }).map(p => p.field), ['last_week.goals']);
+  assert.deepEqual(validateImport({ ...base, last_week: { others: null } }).map(p => p.field), ['last_week.others']);
+  const over = { hours: Array(8).fill(''), goals: Array(5).fill({}), others: Array(5).fill({}) };
+  assert.deepEqual(validateImport({ ...base, last_week: over }).map(p => p.field).sort(),
+    ['last_week.goals', 'last_week.hours', 'last_week.others']);
+});
+
+test('validateImport: 読み込んでよいもの（入力の途中）', () => {
+  const base = fixtures()[0].data;
+  assert.deepEqual(validateImport({}), []);
+  assert.deepEqual(validateImport({ ...base, name_ja_sei: '', name_ja_mei: '', name_en: '', date: '' }), []);
+  const { date, name_en, ...partial } = base;
+  assert.deepEqual(validateImport(partial), []);
+  const { last_week, this_week, ...noWeeks } = base;
+  assert.deepEqual(validateImport(noWeeks), []);
+  assert.deepEqual(validateImport({ ...base, last_week: {} }), []);
+  // 出力の検査は通らない（名前・日付・週が無い）
+  assert.ok(validate(noWeeks).length > 0);
+  for (const { name, data } of fixtures()) assert.deepEqual(validateImport(data), [], name);
 });

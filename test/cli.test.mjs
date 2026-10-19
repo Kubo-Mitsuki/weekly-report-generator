@@ -86,3 +86,30 @@ test('JSON が無い・壊れている・出力先フォルダが無いと終了
     assert.equal(run([], dir).status, 1);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('last_week が無い・オブジェクトでない JSON は入力エラーで終了コード 1', () => {
+  const dir = tmp();
+  try {
+    const { last_week, ...noLast } = fixtures()[0].data;
+    for (const data of [noLast, { ...noLast, last_week: 'x' }]) {
+      writeFileSync(path.join(dir, 'in.json'), JSON.stringify(data));
+      const r = run(['in.json', '-o', 'out.pptx'], dir);
+      assert.equal(r.status, 1);
+      assert.match(r.stderr, /入力エラー: last_week/);
+      assert.doesNotMatch(r.stderr, /書き込みに失敗/);
+      assert.equal(r.stdout, '');
+      assert.ok(!existsSync(path.join(dir, 'out.pptx')));
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('hours が配列でない JSON は入力エラーで終了コード 1', () => {
+  const dir = tmp();
+  try {
+    const d = fixtures()[0].data;
+    writeFileSync(path.join(dir, 'in.json'), JSON.stringify({ ...d, this_week: { ...d.this_week, hours: 'x' } }));
+    const r = run(['in.json', '-o', 'out.pptx'], dir);
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /入力エラー: this_week\.hours/);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});

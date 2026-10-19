@@ -177,25 +177,50 @@ export function fileNameFor(data) {
 }
 
 // ── 入力検査 ──
-// 問題の配列 [{ field, message }] を返す。問題が無ければ空配列。
+// どちらも問題の配列 [{ field, message }] を返す。問題が無ければ空配列。
+
+const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+
+// 形の検査（出力・読み込みで共通）。requireWeeks: last_week・this_week が無いのも問題にする
+function shapeProblems(data, requireWeeks) {
+  if (!isObject(data)) return [{ field: '(全体)', message: 'JSON全体がオブジェクトではありません' }];
+  const problems = [];
+  const weeks = ['last_week', 'this_week'];
+  const sections = {};
+  for (const week of weeks) {
+    if (data[week] === undefined) {
+      if (requireWeeks) problems.push({ field: week, message: `${week} がありません` });
+    } else if (!isObject(data[week])) {
+      problems.push({ field: week, message: `${week} はオブジェクトである必要があります` });
+    } else {
+      sections[week] = data[week];
+    }
+  }
+  const limits = [['goals', ROWS.goals, '目標は{n}件までです'], ['others', ROWS.others, 'その他は{n}件までです'], ['hours', ROWS.days, '在室時間は{n}日分までです']];
+  for (const [key, max, msg] of limits) {
+    for (const week of weeks) {
+      const list = sections[week] && sections[week][key];
+      if (list === undefined) continue;
+      if (!Array.isArray(list)) problems.push({ field: `${week}.${key}`, message: `${week}.${key} は配列である必要があります` });
+      else if (list.length > max) problems.push({ field: `${week}.${key}`, message: msg.replace('{n}', max) });
+    }
+  }
+  return problems;
+}
+
+// 出力（画面の「出力」と CLI）の検査
 export function validate(data) {
+  if (!isObject(data)) return shapeProblems(data, true);
   const problems = [];
   if (!data.name_ja_sei) problems.push({ field: 'name', message: '苗字を入力してください' });
   if (!data.name_en) problems.push({ field: 'name_en', message: 'ローマ字の氏名を入力してください' });
   if (typeof data.date !== 'string' || !parseDate(data.date)) {
     problems.push({ field: 'date', message: '日付を YYYY/MM/DD の形で入力してください' });
   }
-  for (const week of ['last_week', 'this_week']) {
-    const sec = data[week] || {};
-    if ((sec.goals || []).length >= 5) problems.push({ field: `${week}.goals`, message: `目標は${ROWS.goals}件までです` });
-  }
-  for (const week of ['last_week', 'this_week']) {
-    const sec = data[week] || {};
-    if ((sec.others || []).length >= 5) problems.push({ field: `${week}.others`, message: `その他は${ROWS.others}件までです` });
-  }
-  for (const week of ['last_week', 'this_week']) {
-    const sec = data[week] || {};
-    if ((sec.hours || []).length >= 8) problems.push({ field: `${week}.hours`, message: `在室時間は${ROWS.days}日分までです` });
-  }
-  return problems;
+  return problems.concat(shapeProblems(data, true));
+}
+
+// JSON 読み込み（画面）の検査。入力の途中を渡すことがあるので、名前・日付が空でも、週が無くてもよい
+export function validateImport(data) {
+  return shapeProblems(data, false);
 }

@@ -34,7 +34,7 @@ node cli/generate.mjs test/fixtures/02_full.json -o report.pptx
 
 ## 入力JSONの形
 
-Web 画面の `collectData()` が返すものと同じです。値はすべて文字列です。
+Web 画面の `collectData()` が返すものと同じです。画面の「JSONを書き出す」で保存したJSONは、そのまま CLI に渡せます（逆に、CLI の入力JSONは画面の「JSONを読み込む」で読み込めます）。値はすべて文字列です。
 
 ```json
 {
@@ -76,8 +76,8 @@ npm test
 
 Node 標準の `node:test` を使います。主な内容:
 
-- `test/render.test.mjs`: `legacy/old_slide.mjs`（コミット `dc9a62d` の描画を写した凍結版。直さない）と、`slide.js` の `buildDeck` で作った .pptx が、全フィクスチャで一致すること
-- `test/slide.test.mjs`: `validate`・`fileNameFor`
+- `test/render.test.mjs`: `legacy/old_slide.mjs`（コミット `dc9a62d` の描画を写した凍結版。直さない）と、旧の見た目（両週とも青・見出し1つのまとまりで18pt）を `opts` で渡した `slide.js` の `buildDeck` で作った .pptx が、全フィクスチャで一致すること。あわせて、今週が橙・先週が青・「その他」が緑であることと、見出しの2つのまとまりも確かめる
+- `test/slide.test.mjs`: `validate`・`validateImport`・`fileNameFor`
 - `test/cli.test.mjs`: CLI の成功と、失敗時の終了コード
 
 `test/fixtures/` に入力 JSON のサンプルがあります。

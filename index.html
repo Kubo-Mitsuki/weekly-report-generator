@@ -348,6 +348,9 @@ button.gen:active { transform: scale(0.97); }
     <button class="btn-help" onclick="toggleHelp(this)" type="button" aria-label="help">?</button>
     <div class="help-pop" hidden><div id="carry-help-text"></div></div>
     <span class="spacer"></span>
+    <button class="btn-carry" id="btn-json-export" type="button" onclick="exportJson()">JSONを書き出す</button>
+    <button class="btn-carry" id="btn-json-import" type="button" onclick="$('json-file').click()">JSONを読み込む</button>
+    <input type="file" id="json-file" accept=".json,application/json" hidden>
   </div>
 
   <div class="tabs">
@@ -396,6 +399,8 @@ const T = {
     carry_help:"時間が1週間進んだ時に使用します。\n先週編集した「今週」の内容は、今週の「先週」になるためです。\n\nどちらも先週欄に今週の内容を入れます。\n違いは今週欄の扱いだけ:\n\n・移動 → 今週欄は空になる\n・コピー → 今週欄は残る\n\n新しい目標を立てるなら「移動」、\n同じ目標を継続するなら「コピー」。",
     app_help:"毎週のゼミ活動報告スライドを自動生成するWebツールです。\n苗字・名前・在室時間・目標・その他取り組みを入力するだけで、テンプレートに合ったPowerPointファイルを出力できます。\n\nインストール不要。URLを開くだけで使えます。\n入力内容は自動保存され、次回起動時に復元されます。",
     overflow_note:"赤い枠は、文字が多くて枠から出ます",
+    json_export:"JSONを書き出す", json_import:"JSONを読み込む",
+    json_exported:"JSONを書き出しました: {}", json_loaded:"JSONを読み込みました", json_err:"JSONを読み込めません: {}",
     generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
@@ -417,6 +422,8 @@ const T = {
     carry_help:"时间推进一周时使用。\n上次编辑的「本周」内容，本周将变成「上周」。\n\n两个按钮都会将本周内容放入上周栏。\n区别只在于本周栏的处理:\n\n・移动 → 本周栏清空\n・复制 → 本周栏保留\n\n要制定新目标选「移动」，\n继续相同目标选「复制」。",
     app_help:"自动生成每周组会活动报告幻灯片的Web工具。\n只需输入姓名、在室时间、目标及其他工作内容，即可输出符合模板的PowerPoint文件。\n\n无需安装。打开URL即可使用。\n输入内容自动保存，下次打开时恢复。",
     overflow_note:"红框表示文字过多，会超出框",
+    json_export:"导出JSON", json_import:"导入JSON",
+    json_exported:"已导出JSON: {}", json_loaded:"已导入JSON", json_err:"无法导入JSON: {}",
     generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
@@ -438,6 +445,8 @@ const T = {
     carry_help:"시간이 1주일 지났을 때 사용합니다.\n지난번에 편집한 「이번주」 내용이 이번주의 「지난주」가 되기 때문입니다.\n\n두 버튼 모두 지난주 칸에 이번주 내용을 넣습니다.\n차이는 이번주 칸의 처리:\n\n・이동 → 이번주 칸이 비워짐\n・복사 → 이번주 칸이 남음\n\n새로운 목표를 세운다면 「이동」,\n같은 목표를 계속한다면 「복사」。",
     app_help:"매주 세미나 활동보고 슬라이드를 자동 생성하는 웹 도구입니다.\n성・이름・재실시간・목표・기타 작업을 입력하면 템플릿에 맞는 PowerPoint 파일을 출력할 수 있습니다.\n\n설치 불필요. URL을 열기만 하면 됩니다.\n입력 내용은 자동 저장되어 다음 실행 시 복원됩니다.",
     overflow_note:"빨간 테두리는 글자가 많아 칸을 벗어납니다",
+    json_export:"JSON 내보내기", json_import:"JSON 가져오기",
+    json_exported:"JSON을 내보냈습니다: {}", json_loaded:"JSON을 가져왔습니다", json_err:"JSON을 가져올 수 없습니다: {}",
     generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
@@ -459,6 +468,8 @@ const T = {
     carry_help:"Use this when one week has passed.\nLast week's \"this week\" content becomes this week's \"last week\".\n\nBoth buttons copy this week's content into the last-week column.\nThe only difference is what happens to the this-week column:\n\n・Move → This-week column is cleared\n・Copy → This-week column stays as-is\n\nChoose \"Move\" to write new goals,\n\"Copy\" to continue the same goals.",
     app_help:"A web tool for automatically generating weekly seminar activity report slides.\nJust enter your name, hours present, goals, and other tasks to produce a PowerPoint file matching the template.\n\nNo installation required. Just open the URL.\nYour input is auto-saved and restored next time you open the app.",
     overflow_note:"Red outlines: the text is too long and will overflow the cell",
+    json_export:"Export JSON", json_import:"Import JSON",
+    json_exported:"Exported JSON: {}", json_loaded:"Imported JSON", json_err:"Cannot import JSON: {}",
     generated:"Output: {}", err_input:"Input Error"
   }
 };
@@ -485,6 +496,8 @@ function applyLang() {
   $('tab-btn-last').textContent = l.tab_last;
   $('tab-btn-this').textContent = l.tab_this;
   $('btn-gen').textContent = l.btn_gen;
+  $('btn-json-export').textContent = l.json_export;
+  $('btn-json-import').textContent = l.json_import;
   $('carry-label').textContent = l.carry_label;
   $('btn-carry-move').textContent = l.carry_move;
   $('btn-carry-copy').textContent = l.carry_copy;
@@ -621,7 +634,8 @@ function fit(rec) {
     f.style.height = f.scrollHeight + 'px';
   }
   const cs = getComputedStyle(rec.el);
-  const inner = rec.el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  // 余白は枠線の外側から測る（PowerPoint の表のセルと同じ。枠線の太さぶんを内側から引かない）
+  const inner = rec.el.offsetHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
   const text = f.tagName === 'TEXTAREA' ? f.value : f.textContent;
   rec.el.classList.toggle('over', text !== '' && f.scrollHeight > inner + 1);
 }
@@ -960,6 +974,59 @@ function carryGoals(mode) {
   if (L) buildSurface();
   autoSave();
 }
+
+// ── JSON の書き出し・読み込み（collectData() の形。CLI の入力と同じ） ──
+function exportJson() {
+  if (!S) return;
+  const data = collectData();
+  const filename = (S.fileNameFor(data) || 'report') + '.json';
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2) + '\n'], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setStatus(t('json_exported').replace('{}', filename), 'ok');
+}
+
+function importFail(reason) {
+  setStatus(t('json_err').replace('{}', reason), 'err');
+}
+
+// 読み込めるものだけ画面に入れる。拒否したときは画面を変えない
+function importData(data) {
+  const problems = S.validateImport(data);
+  if (problems.length) { importFail(problems.map(p => `${p.field}: ${p.message}`).join(' / ')); return; }
+  const str = (v) => v == null ? '' : String(v);
+  $('grade').value = str(data.grade);
+  $('name-ja-sei').value = str(data.name_ja_sei);
+  $('name-ja-mei').value = str(data.name_ja_mei);
+  $('name-en').value = str(data.name_en);
+  if (data.fn_format === 'sei' || data.fn_format === 'sei_mei') $('fn-format').value = data.fn_format;
+  if (typeof data.lang === 'string' && Object.hasOwn(T, data.lang)) {
+    currentLang = data.lang;
+    $('lang-select').value = data.lang;
+  }
+  // 基準日が無い・空なら今の基準日のまま
+  if (typeof data.date === 'string' && data.date.trim()) $('base-date').value = data.date.trim();
+  fillWeek('last', data.last_week || {});
+  fillWeek('this', data.this_week || {});
+  applyLang();
+  buildSurface();
+  autoSave();
+  setStatus(t('json_loaded'), 'ok');
+}
+
+$('json-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = ''; // 同じファイルをもう一度選べるようにする
+  if (!file || !S) return;
+  let data;
+  try { data = JSON.parse(await file.text()); } catch (err) { importFail('JSONとして読めません'); return; }
+  importData(data);
+});
 
 async function generate() {
   const data = collectData();
