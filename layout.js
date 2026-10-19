@@ -5,16 +5,15 @@ export const SLIDE_LAYOUT = 'LAYOUT_WIDE';
 
 // ── 書体・色 ──
 export const FONT = 'Yu Gothic';
-export const ACCENT3 = '196B24';
-export const BAND_GREEN_DARK = 'D1DFD3';
-export const BAND_GREEN_LIGHT = 'E8EFE9';
 
-// 週ごとの色。accent は在室時間の表の見出しと目標の表の見出し、bandDark / bandLight は目標の表の縞。
-// 先週は青、今週は橙。「その他」の表は週によらず緑（ACCENT3・BAND_GREEN_*）。
+// 3色（青・橙・緑）は OKLCH で明るさと鮮やかさをそろえた組。白い文字との比は 青6.5・橙3.5・緑6.0。
+// accent は見出しの札・在室時間の表と目標の表の見出し、bandDark / bandLight は表の縞（濃・淡）。
+// 先週は青、今週は橙。「その他」の表は週によらず緑（OTHERS_THEME）。
 export const THEMES = {
-  last: { accent: '156082', bandDark: 'D0DCE5', bandLight: 'E8EEF2' },
-  this: { accent: 'C55A11', bandDark: 'F4B183', bandLight: 'FBE5D6' },
+  last: { accent: '2C6194', bandDark: 'D4E1EF', bandLight: 'EBF1F7' },
+  this: { accent: 'C57539', bandDark: 'F0DBCD', bandLight: 'F8EEE8' },
 };
+export const OTHERS_THEME = { accent: '3D6D48', bandDark: 'D7E3D9', bandLight: 'ECF2ED' };
 
 export const COLOR_BLACK = '000000';
 export const COLOR_WHITE = 'FFFFFF';
@@ -42,9 +41,12 @@ export const ROWS = {
 
 // ── 固定の文字列 ──
 export const TEXT = {
-  lastWeekLabel: '先週の目標とその進捗\nLast week\'s goals and progress',
-  thisWeekLabel: '今週の目標とその進捗\nThis week\'s goals and progress',
-  othersLabel: 'その他取り組むこと\nWhat else I will do',
+  // 目標の表の上の見出し。badge は週の色の札、rest は札に続く文字、en は札の下の英語の行
+  weekHeading: {
+    last: { badge: '先週', rest: 'の目標とその進捗', en: 'Last week\'s goals and progress' },
+    this: { badge: '今週', rest: 'の目標とその進捗', en: 'This week\'s goals and progress' },
+  },
+  othersHeading: { ja: 'その他取り組むこと', en: 'What else I will do' },
   dateHeader: 'Date',
   hoursHeader: '在室時間',
   goalHeader: '目標',
@@ -76,15 +78,19 @@ export const ATTENDANCE_TABLE = {
   fontSize: 18,
 };
 
-// 「先週／今週の目標とその進捗」の見出し
+// 見出し（「先週／今週の目標とその進捗」）の枠。札はこの枠の左上にそろえる
 export const SLIDE_LABEL = {
   box: { x: 0.28, y: 1.47, w: 8.96, h: 0.82 },
 };
 
-// その見出しの文字（日本語の行と英語の行を別々の run にする）
+// 見出しの文字と札。日本語の行（札 + 続く文字）の高さは badge.h、英語の行はその下
 export const HEADING = {
-  ja: { fontSize: 26, bold: true, color: '000000' },
-  en: { fontSize: 16, bold: false, color: '333333' },
+  badge: { w: 0.86, h: 0.40, fontSize: 20, bold: true, color: COLOR_WHITE },  // 札（週の色で塗る）。w は2文字 + 左右の余白
+  ja: { fontSize: 18, bold: false, color: COLOR_BLACK },    // 札に続く文字・その他の見出しの日本語の行
+  en: { fontSize: 16, bold: false, color: COLOR_LABEL },    // 英語の行
+  gap: 0.06,      // 札と続く文字の間
+  enY: 0.42,      // 枠の上端から英語の行の上端まで
+  enH: 0.30,      // 英語の行の高さ
 };
 
 // 目標の表
@@ -95,10 +101,9 @@ export const GOALS_TABLE = {
   fontSize: 18,
 };
 
-// 「その他取り組むこと」の見出し
+// 「その他取り組むこと」の見出し。文字の段は目標の見出しと同じ（HEADING）
 export const OTHERS_LABEL = {
   box: { x: 9.53, y: 1.47, w: 3.51, h: 0.82 },
-  fontSize: 18,
 };
 
 // その他の表

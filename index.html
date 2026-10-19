@@ -623,7 +623,7 @@ function registerEditable(c, def) {
 function showValue(rec) {
   const v = model[activeWeek][rec.kind][rec.i];
   if (rec.field.tagName === 'TEXTAREA') rec.field.value = v;
-  else rec.field.textContent = v;
+  else rec.field.textContent = rec.kind === 'a' ? S.formatAchievement(v) : v;
 }
 
 // 文字の高さ（scrollHeight）がセルの内側の高さを超えたら赤枠
@@ -646,13 +646,30 @@ function updateNote() {
   $('overflow-note').textContent = cells.some(r => r.el.classList.contains('over')) ? t('overflow_note') : '';
 }
 
-function textBox(parent, box, valign) {
+function textBox(parent, box, valign, inset = BOX_INSET) {
   const b = el('div', 'abs box', parent);
   place(b, box);
-  b.style.padding = `${inch(BOX_INSET.y)} ${inch(BOX_INSET.x)}`;
+  b.style.padding = `${inch(inset.y)} ${inch(inset.x)}`;
   b.style.justifyContent = FLEX[valign];
   b.style.fontFamily = FONT_STACK;
   return b;
+}
+
+const NO_INSET = { x: 0, y: 0 };
+
+// 見出しの日本語の行（枠の左上から indent だけ右）と英語の行
+function headingLines(parent, box, indent, ja, en) {
+  const H = L.HEADING;
+  const put = (rect, text, f) => {
+    const b = textBox(parent, rect, L.LABEL_VALIGN, NO_INSET);
+    const d = el('div', 'line', b);
+    d.textContent = text;
+    d.style.fontSize = ptpx(f.fontSize);
+    d.style.fontWeight = f.bold ? '700' : '400';
+    d.style.color = '#' + f.color;
+  };
+  put({ x: box.x + indent, y: box.y, w: box.w - indent, h: H.badge.h }, ja, H.ja);
+  put({ x: box.x, y: box.y + H.enY, w: box.w, h: H.enH }, en, H.en);
 }
 
 function buildSurface() {
@@ -698,10 +715,15 @@ function buildSurface() {
   }
   makeTable(surface, att, attRows);
 
-  // 目標の表の見出し（日本語の行と英語の行）
-  const [ja, en] = S.splitLabel(activeWeek === 'last' ? L.TEXT.lastWeekLabel : L.TEXT.thisWeekLabel);
-  const sl = textBox(surface, L.SLIDE_LABEL.box, L.LABEL_VALIGN);
-  lines(sl, [ja, L.HEADING.ja], [en, L.HEADING.en]);
+  // 目標の表の見出し: 週の色の札 + 続く文字、その下に英語の行（slide.js の addHeading と同じ置き方）
+  const H = L.HEADING;
+  const sbox = L.SLIDE_LABEL.box;
+  const wk = L.TEXT.weekHeading[activeWeek];
+  const badge = textBox(surface, { x: sbox.x, y: sbox.y, w: H.badge.w, h: H.badge.h }, L.LABEL_VALIGN, NO_INSET);
+  badge.style.background = '#' + th.accent;
+  badge.style.alignItems = 'center';
+  lines(badge, [wk.badge, H.badge]);
+  headingLines(surface, sbox, H.badge.w + H.gap, wk.rest, wk.en);
 
   // 目標の表
   const gt = L.GOALS_TABLE;
@@ -721,13 +743,12 @@ function buildSurface() {
   makeTable(surface, gt, goalRows);
 
   // その他取り組むこと
-  const ol = textBox(surface, L.OTHERS_LABEL.box, L.LABEL_VALIGN);
-  lines(ol, [L.TEXT.othersLabel, { fontSize: L.OTHERS_LABEL.fontSize, bold: false, color: L.COLOR_LABEL }]);
-  ol.firstChild.style.whiteSpace = 'pre-line';
+  headingLines(surface, L.OTHERS_LABEL.box, 0, L.TEXT.othersHeading.ja, L.TEXT.othersHeading.en);
   const ot = L.OTHERS_TABLE;
-  const otherRows = [[{ fill: L.ACCENT3, color: L.COLOR_WHITE, bold: L.CELL.headerBold, align: L.CELL.align, text: L.TEXT.summaryHeader }]];
+  const OT = L.OTHERS_THEME;
+  const otherRows = [[{ fill: OT.accent, color: L.COLOR_WHITE, bold: L.CELL.headerBold, align: L.CELL.align, text: L.TEXT.summaryHeader }]];
   for (let i = 0; i < L.ROWS.others; i++) {
-    otherRows.push([{ fill: i % 2 === 0 ? L.BAND_GREEN_DARK : L.BAND_GREEN_LIGHT, kind: 'o', i, label: L.TEXT.othersLabel.split('\n')[0] }]);
+    otherRows.push([{ fill: i % 2 === 0 ? OT.bandDark : OT.bandLight, kind: 'o', i, label: L.TEXT.othersHeading.ja }]);
   }
   makeTable(surface, ot, otherRows);
 

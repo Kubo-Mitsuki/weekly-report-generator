@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validate, validateImport, fileNameFor } from '../slide.js';
+import { validate, validateImport, fileNameFor, formatAchievement } from '../slide.js';
 import { fixtures } from '../tools/test_helpers.mjs';
 
 test('フィクスチャはすべて検査を通る', () => {
@@ -82,4 +82,13 @@ test('validateImport: 読み込んでよいもの（入力の途中）', () => {
   // 出力の検査は通らない（名前・日付・週が無い）
   assert.ok(validate(noWeeks).length > 0);
   for (const { name, data } of fixtures()) assert.deepEqual(validateImport(data), [], name);
+});
+
+test('formatAchievement: 数字だけのときは % を付け、それ以外はそのまま', () => {
+  for (const [v, want] of [['90', '90%'], ['90.5', '90.5%'], [' 90 ', '90%'], ['0', '0%'], ['120', '120%']]) {
+    assert.equal(formatAchievement(v), want, JSON.stringify(v));
+  }
+  for (const v of ['90%', '約90', '', ' ', '９０', '.5', '90.', '1e2', '-1', undefined, null]) {
+    assert.equal(formatAchievement(v), v == null ? '' : v, JSON.stringify(v));
+  }
 });
