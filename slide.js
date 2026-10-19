@@ -78,7 +78,7 @@ export function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLab
   ];
   for (let i = 0; i < ROWS.days; i++) {
     attRows[0].push({ text: dates[i] || '', options: { fontSize: att.fontSize, align: CELL.align, valign: CELL.valign } });
-    attRows[1].push({ text: (sec.hours[i] || ''), options: { fontSize: att.fontSize, align: CELL.align, valign: CELL.valign } });
+    attRows[1].push({ text: ((sec.hours && sec.hours[i]) || ''), options: { fontSize: att.fontSize, align: CELL.align, valign: CELL.valign } });
   }
   slide.addTable(attRows, {
     ...att.box,

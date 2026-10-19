@@ -113,3 +113,14 @@ test('hours が配列でない JSON は入力エラーで終了コード 1', () 
     assert.match(r.stderr, /入力エラー: this_week\.hours/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('hours の無い週（last_week: {}）でも .pptx ができる', () => {
+  const dir = tmp();
+  try {
+    const data = { name_ja_sei: '山田', name_en: 'Yamada Taro', date: '2026/10/20', last_week: {}, this_week: {} };
+    writeFileSync(path.join(dir, 'in.json'), JSON.stringify(data));
+    const r = run(['in.json', '-o', 'out.pptx'], dir);
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(existsSync(path.join(dir, 'out.pptx')));
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
