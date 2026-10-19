@@ -5,12 +5,16 @@ export const SLIDE_LAYOUT = 'LAYOUT_WIDE';
 
 // ── 書体・色 ──
 export const FONT = 'Yu Gothic';
-export const ACCENT1 = '156082';
 export const ACCENT3 = '196B24';
-export const BAND_BLUE_DARK = 'D0DCE5';
-export const BAND_BLUE_LIGHT = 'E8EEF2';
 export const BAND_GREEN_DARK = 'D1DFD3';
 export const BAND_GREEN_LIGHT = 'E8EFE9';
+
+// 週ごとの色。accent は在室時間の表の見出しと目標の表の見出し、bandDark / bandLight は目標の表の縞。
+// 先週は青、今週は橙。「その他」の表は週によらず緑（ACCENT3・BAND_GREEN_*）。
+export const THEMES = {
+  last: { accent: '156082', bandDark: 'D0DCE5', bandLight: 'E8EEF2' },
+  this: { accent: 'C55A11', bandDark: 'F4B183', bandLight: 'FBE5D6' },
+};
 
 export const COLOR_BLACK = '000000';
 export const COLOR_WHITE = 'FFFFFF';
@@ -75,7 +79,12 @@ export const ATTENDANCE_TABLE = {
 // 「先週／今週の目標とその進捗」の見出し
 export const SLIDE_LABEL = {
   box: { x: 0.28, y: 1.47, w: 8.96, h: 0.82 },
-  fontSize: 18,
+};
+
+// その見出しの文字（日本語の行と英語の行を別々の run にする）
+export const HEADING = {
+  ja: { fontSize: 26, bold: true, color: '000000' },
+  en: { fontSize: 16, bold: false, color: '333333' },
 };
 
 // 目標の表

@@ -2,8 +2,8 @@
 // 値は layout.js から読む。
 
 import {
-  SLIDE_LAYOUT, FONT, ACCENT1, ACCENT3,
-  BAND_BLUE_DARK, BAND_BLUE_LIGHT, BAND_GREEN_DARK, BAND_GREEN_LIGHT,
+  SLIDE_LAYOUT, FONT, ACCENT3, THEMES, HEADING,
+  BAND_GREEN_DARK, BAND_GREEN_LIGHT,
   COLOR_BLACK, COLOR_WHITE, COLOR_LABEL,
   BORDER, CELL, AUTO_PAGE, LABEL_VALIGN, ROWS, TEXT,
   DATE_LABEL, NAME_BOX, ATTENDANCE_TABLE, SLIDE_LABEL,
@@ -37,8 +37,27 @@ export function weekDates(base, before) {
   return dates;
 }
 
+// 「日本語\nEnglish」の見出しを [日本語の行, 英語の行] に分ける
+export function splitLabel(label) {
+  const i = label.indexOf('\n');
+  return i < 0 ? [label, ''] : [label.slice(0, i), label.slice(i + 1)];
+}
+
+// 目標の表の上の見出しの run。heading が { single } なら1つの run、{ ja, en } なら行ごとの run
+function headingRuns(label, heading) {
+  const font = (h) => ({ fontSize: h.fontSize, ...(h.bold ? { bold: true } : {}), fontFace: FONT, color: h.color });
+  if (heading.single) return [{ text: label, options: font(heading.single) }];
+  const [ja, en] = splitLabel(label);
+  return [
+    { text: ja, options: { ...font(heading.ja), breakLine: true } },
+    { text: en, options: font(heading.en) },
+  ];
+}
+
 // ── 1枚のスライド ──
-export function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, othersLabel) {
+// theme: その週の色の組 { accent, bandDark, bandLight }（THEMES.last / THEMES.this）
+// heading: 見出しの文字（既定 HEADING）。テスト用に差し替えられる
+export function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLabel, othersLabel, theme, heading = HEADING) {
   const slide = pptx.addSlide();
 
   slide.addText(dateLabel, {
@@ -52,7 +71,7 @@ export function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLab
   ], { ...NAME_BOX.box, color: COLOR_BLACK });
 
   const att = ATTENDANCE_TABLE;
-  const attHead = { bold: CELL.headerBold, fontSize: att.fontSize, fill: { color: ACCENT1 }, color: COLOR_WHITE, align: CELL.align, valign: CELL.valign };
+  const attHead = { bold: CELL.headerBold, fontSize: att.fontSize, fill: { color: theme.accent }, color: COLOR_WHITE, align: CELL.align, valign: CELL.valign };
   const attRows = [
     [{ text: TEXT.dateHeader, options: { ...attHead } }],
     [{ text: TEXT.hoursHeader, options: { ...attHead } }]
@@ -69,22 +88,20 @@ export function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLab
     rowH: [...att.rowH], autoPage: AUTO_PAGE
   });
 
-  slide.addText([
-    { text: slideLabel, options: { fontSize: SLIDE_LABEL.fontSize, fontFace: FONT, color: COLOR_LABEL } }
-  ], { ...SLIDE_LABEL.box, valign: LABEL_VALIGN });
+  slide.addText(headingRuns(slideLabel, heading), { ...SLIDE_LABEL.box, valign: LABEL_VALIGN });
 
   const gt = GOALS_TABLE;
-  const goalHead = { bold: CELL.headerBold, fill: { color: ACCENT1 }, color: COLOR_WHITE, fontSize: gt.fontSize, align: CELL.align, valign: CELL.valign };
+  const goalHead = { bold: CELL.headerBold, fill: { color: theme.accent }, color: COLOR_WHITE, fontSize: gt.fontSize, align: CELL.align, valign: CELL.valign };
   const goalRows = [
     [
-      { text: TEXT.goalHeader, options: { ...goalHead, fill: { color: ACCENT1 } } },
-      { text: TEXT.achievementHeader, options: { ...goalHead, fill: { color: ACCENT1 } } },
-      { text: TEXT.summaryHeader, options: { ...goalHead, fill: { color: ACCENT1 } } }
+      { text: TEXT.goalHeader, options: { ...goalHead, fill: { color: theme.accent } } },
+      { text: TEXT.achievementHeader, options: { ...goalHead, fill: { color: theme.accent } } },
+      { text: TEXT.summaryHeader, options: { ...goalHead, fill: { color: theme.accent } } }
     ]
   ];
   for (let i = 0; i < ROWS.goals; i++) {
     const g = (sec.goals && sec.goals[i]) || {};
-    const band = i % 2 === 0 ? BAND_BLUE_DARK : BAND_BLUE_LIGHT;
+    const band = i % 2 === 0 ? theme.bandDark : theme.bandLight;
     goalRows.push([
       { text: g.goal || '', options: { fontSize: gt.fontSize, fill: { color: band }, valign: CELL.valign } },
       { text: g.achievement || '', options: { fontSize: gt.fontSize, align: CELL.align, valign: CELL.valign, fill: { color: band } } },
@@ -124,7 +141,10 @@ export function buildSlide(pptx, nameJa, nameEn, dateLabel, dates, sec, slideLab
 }
 
 // ── 2枚（先週・今週）のスライド ──
-export function buildDeck(pptx, data) {
+// opts.themes / opts.heading は layout.js の値を差し替えるためのもの（テスト専用。CLI と画面からは渡さない）
+export function buildDeck(pptx, data, opts = {}) {
+  const themes = opts.themes || THEMES;
+  const heading = opts.heading || HEADING;
   const base = parseDate(data.date);
   const nameJa = data.name_ja_sei + data.name_ja_mei;
   const dateLabel = fmtMD(base);
@@ -134,9 +154,9 @@ export function buildDeck(pptx, data) {
   pptx.layout = SLIDE_LAYOUT;
 
   buildSlide(pptx, nameJa, data.name_en, dateLabel, lastDates, data.last_week,
-    TEXT.lastWeekLabel, TEXT.othersLabel);
+    TEXT.lastWeekLabel, TEXT.othersLabel, themes.last, heading);
   buildSlide(pptx, nameJa, data.name_en, dateLabel, thisDates, data.this_week,
-    TEXT.thisWeekLabel, TEXT.othersLabel);
+    TEXT.thisWeekLabel, TEXT.othersLabel, themes.this, heading);
 }
 
 // ── ファイル名（拡張子なし） ──
