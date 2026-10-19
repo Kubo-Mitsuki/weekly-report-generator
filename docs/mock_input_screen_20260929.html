@@ -1,0 +1,60 @@
+<!doctype html>
+<meta charset="UTF-8">
+<!-- 2026-09-29 に承認された入力画面のモック（チャットの表示部品で描いたもの）。var(--…) はその表示部品の色の変数で、このファイル単体では効かない。データは架空。 -->
+<style>:root{--border:#ccc;--border-strong:#999;--surface-1:#f6f6f6;--text-secondary:#555;--font-sans:sans-serif}.sr-only{position:absolute;left:-9999px}.row{display:flex;gap:8px;align-items:center}</style>
+<h2 class="sr-only">スライドの見た目がそのまま入力画面になる案のモック。セルを押すと編集できる。</h2>
+<style>
+#sl{background:#fff;border:0.5px solid var(--border-strong);border-radius:4px;padding:14px 14px 12px;color:#000;font-family:'Yu Gothic','Meiryo',var(--font-sans);width:100%;box-sizing:border-box}
+#sl .top{display:flex;gap:12px;align-items:flex-start}
+#sl .who{width:96px;font-weight:700;font-size:13px;line-height:1.35;flex:none}
+#sl table{border-collapse:collapse;width:100%;table-layout:fixed}
+#sl td,#sl th{border:1px solid #9aa6ad;font-size:12px;padding:3px 5px;vertical-align:top}
+#sl th{background:#156082;color:#fff;font-weight:700;text-align:center}
+#sl .att td{text-align:center;height:22px}
+#sl .ttl{font-size:11px;color:#333;margin:10px 0 3px;line-height:1.35}
+#sl .cols{display:grid;grid-template-columns:2.55fr 1fr;gap:10px}
+#sl .g td{height:44px}
+#sl .g tr:nth-child(odd) td{background:#d0dce5}#sl .g tr:nth-child(even) td{background:#e8eef2}
+#sl .o th{background:#196b24}
+#sl .o tr:nth-child(odd) td{background:#d1dfd3}#sl .o tr:nth-child(even) td{background:#e8efe9}
+#sl .ed{cursor:pointer}#sl .ed:hover{outline:2px solid #378ADD;outline-offset:-2px}
+#sl .sel{outline:2px solid #185FA5;outline-offset:-2px}
+#sl .over{outline:2px solid #E24B4A;outline-offset:-2px}
+#panel{margin-top:12px;padding:12px 14px;border:0.5px solid var(--border);border-radius:12px;background:var(--surface-1);min-height:64px}
+#panel .row{display:flex;gap:10px;align-items:center}
+#msg{font-size:13px;margin-top:8px;color:var(--text-secondary)}
+</style>
+<div id="sl">
+  <div class="top">
+    <div class="who">09/29<br>山田 太郎<br>Yamada Taro</div>
+    <table class="att"><tr><th>Date</th><th>09/22</th><th>09/23</th><th>09/24</th><th>09/25</th><th>09/26</th><th>09/27</th><th>09/28</th></tr>
+    <tr><th>在室時間</th><td class="ed" data-k="h2" data-t="hour"></td><td class="ed" data-k="h3" data-t="hour"></td><td class="ed" data-k="h4" data-t="hour"></td><td class="ed" data-k="h5" data-t="hour"></td><td class="ed" data-k="h6" data-t="hour"></td><td class="ed" data-k="h7" data-t="hour"></td><td class="ed" data-k="h8" data-t="hour"></td></tr></table>
+  </div>
+  <div class="cols">
+    <div><div class="ttl">先週の目標と達成状況<br>Last week's goals and progress</div>
+      <table class="g"><colgroup><col style="width:34%"><col style="width:14%"><col></colgroup>
+      <tr><th>目標</th><th>達成度</th><th>概要</th></tr>
+      <tr><td class="ed" data-k="g1" data-t="text"></td><td class="ed" data-k="a1" data-t="pct"></td><td class="ed" data-k="s1" data-t="text"></td></tr>
+      <tr><td class="ed" data-k="g2" data-t="text"></td><td class="ed" data-k="a2" data-t="pct"></td><td class="ed" data-k="s2" data-t="text"></td></tr>
+      <tr><td class="ed" data-k="g3" data-t="text"></td><td class="ed" data-k="a3" data-t="pct"></td><td class="ed" data-k="s3" data-t="text"></td></tr></table></div>
+    <div><div class="ttl">その他取り組むこと<br>What else I will do</div>
+      <table class="o"><tr><th>概要</th></tr>
+      <tr><td class="ed" data-k="o1" data-t="text" style="height:44px"></td></tr>
+      <tr><td class="ed" data-k="o2" data-t="text" style="height:44px"></td></tr>
+      <tr><td class="ed" data-k="o3" data-t="text" style="height:44px"></td></tr></table></div>
+  </div>
+</div>
+<div id="panel"><div id="pin" style="font-size:14px;color:var(--text-secondary)">スライドのセルを押すと、ここで編集できます。</div><div id="msg"></div></div>
+<script>
+var D={h4:'3',h7:'4',h8:'6',g1:'先行研究の調査',a1:'90',s1:'論文を5本読み、要点をまとめた',g2:'実験環境の構築',a2:'70',s2:'ライブラリの導入まで完了',g3:'データ収集',a3:'100',s3:'予定していた全データを取得',o1:'',o2:'',o3:''};
+var cur=null;
+function show(){document.querySelectorAll('#sl .ed').forEach(function(c){var k=c.dataset.k,v=D[k]||'';c.textContent=(c.dataset.t==='pct'&&v!=='')?v+'%':v;});check();}
+function check(){var bad=0;document.querySelectorAll('#sl .ed[data-t="text"]').forEach(function(c){var over=(D[c.dataset.k]||'').length>(c.dataset.k[0]==='s'?26:16);c.classList.toggle('over',over);if(over)bad++;});
+document.getElementById('msg').textContent=bad?'赤い枠は、文字が多くて枠から出ます。入力しながら分かります。':'';}
+function pick(c){document.querySelectorAll('#sl .sel').forEach(function(x){x.classList.remove('sel');});c.classList.add('sel');cur=c;var k=c.dataset.k,t=c.dataset.t,p=document.getElementById('pin');
+if(t==='text'){p.innerHTML='<div class="row"><input id="e" type="text" style="flex:1" value="'+(D[k]||'')+'"></div>';document.getElementById('e').oninput=function(){D[k]=this.value;show();};}
+else{var mx=t==='hour'?12:100,st=t==='hour'?1:10;p.innerHTML='<div class="row"><span style="font-size:13px;color:var(--text-secondary)">'+(t==='hour'?'在室時間':'達成度')+'</span><input id="e" type="range" min="0" max="'+mx+'" step="'+st+'" value="'+(D[k]||0)+'" style="flex:1"><span id="ov" style="min-width:40px;font-weight:500">'+(D[k]||0)+(t==='hour'?' h':'%')+'</span></div>';document.getElementById('e').oninput=function(){D[k]=this.value;document.getElementById('ov').textContent=this.value+(t==='hour'?' h':'%');show();c.classList.add('sel');};}}
+document.querySelectorAll('#sl .ed').forEach(function(c){c.onclick=function(){pick(c);};});
+show();
+</script>
+
