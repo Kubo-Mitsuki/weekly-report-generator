@@ -19,7 +19,6 @@
   --success-hover: #16a34a;
   --danger: #ef4444;
   --input-bg: #1e293b;
-  --tab-active: #3b82f6;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -29,27 +28,27 @@ body {
   min-height: 100vh;
   padding: 16px;
 }
-.container { max-width: 900px; margin: 0 auto; }
+.container { max-width: 1500px; margin: 0 auto; }
 
 .app-title-wrap {
   position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
-h1 { font-size: 1.3rem; font-weight: 600; }
+h1 { font-size: 1.1rem; font-weight: 600; }
 
-.row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
-label { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+.row { display: flex; gap: 6px 12px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+label { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
 input, select, textarea {
   background: var(--input-bg);
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 4px;
-  padding: 6px 8px;
+  padding: 4px 6px;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 input:focus, select:focus, textarea:focus {
   outline: none;
@@ -59,19 +58,19 @@ input:focus, select:focus, textarea:focus {
 select { cursor: pointer; }
 
 .field { display: flex; align-items: center; gap: 6px; }
-.field input[type="text"] { width: 140px; }
-.field input.short { width: 80px; }
+.field input[type="text"] { width: 130px; }
+.field input.short { width: 76px; }
 .field select.short { width: 90px; }
-.field input.date { width: 120px; }
+.field input.date { width: 110px; }
 .field select.fn-select { width: 160px; }
 
 .combo {
   position: relative;
   display: inline-block;
-  height: 32px;
+  height: 28px;
 }
 .combo input {
-  width: 80px;
+  width: 76px;
   height: 100%;
   box-sizing: border-box;
   padding-right: 22px;
@@ -102,179 +101,24 @@ select { cursor: pointer; }
 }
 .combo:hover::after { color: var(--text); }
 
-.tabs { display: flex; gap: 0; margin-top: 12px; }
-.tab-btn {
-  padding: 8px 20px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-bottom: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.85rem;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.15s;
-}
-.tab-btn.active {
-  background: var(--surface2);
-  color: var(--text);
-  border-color: var(--tab-active);
-  border-bottom: 2px solid var(--surface2);
-}
-.tab-content {
-  display: none;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 0 6px 6px 6px;
-  padding: 12px;
-}
-.tab-content.active { display: block; }
-
-/* 先週 = 青系背景、今週 = 緑系背景 */
-#tab-last { background: #1f3043; border-color: #3f6a96; }
-#tab-this { background: #1f3a2c; border-color: #4a8a5e; }
-.tab-btn[data-tab="last"].active {
-  background: #1f3043;
-  border-color: #3f6a96;
-  border-bottom-color: #1f3043;
-}
-.tab-btn[data-tab="this"].active {
-  background: #1f3a2c;
-  border-color: #4a8a5e;
-  border-bottom-color: #1f3a2c;
-}
-
-.section-title {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.att-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-bottom: 12px;
-}
-.att-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 3px;
-}
-.att-cell .att-date {
-  text-align: center;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-.att-slider, .ach-slider {
-  width: 100%;
-  accent-color: var(--accent);
-  cursor: pointer;
-  margin: 0;
-  padding: 0;
-  height: 18px;
-}
-.att-input {
-  width: 100%;
-  text-align: center;
-  font-size: 0.85rem;
-  padding: 3px 2px;
-}
-.ach-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 3px;
-  padding: 4px 6px;
-}
-.ach-input-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-.ach-input {
-  width: 44px !important;
-  text-align: center;
-  font-size: 0.85rem;
-  padding: 2px;
-  border: 1px solid var(--border) !important;
-  border-radius: 3px;
-  background: var(--input-bg);
-}
-.ach-unit {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.goals-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-.goals-table th {
-  background: var(--surface);
-  padding: 6px 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-align: center;
-  border: 1px solid var(--border);
-}
-.goals-table td {
-  padding: 2px;
-  border: 1px solid var(--border);
-  vertical-align: top;
-}
-.goals-table textarea { width: 100%; border: none; resize: vertical; min-height: 48px; }
-.goals-table input { width: 100%; border: none; text-align: center; }
-.goals-table .col-goal { width: 33%; }
-.goals-table .col-ach { width: 13%; }
-.goals-table .col-sum { width: 54%; }
-
-.others-table { width: 100%; border-collapse: collapse; }
-.others-table th {
-  background: var(--surface);
-  padding: 6px 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-align: center;
-  border: 1px solid var(--border);
-}
-.others-table td { padding: 2px; border: 1px solid var(--border); }
-.others-table textarea { width: 100%; border: none; resize: vertical; min-height: 40px; }
-
-.btn-row { display: flex; justify-content: flex-end; margin-top: 12px; gap: 8px; }
-button.gen {
-  background: var(--success);
-  color: #fff;
-  border: none;
-  padding: 10px 28px;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-button.gen:hover { background: var(--success-hover); }
-button.gen:active { transform: scale(0.97); }
+/* 面の上の操作の行（目標の引き継ぎ） */
 .carry-row {
   position: relative;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
-  padding: 8px 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  margin: 8px 0;
 }
-.carry-label { font-size: 0.85rem; color: var(--text-muted); margin-right: 4px; }
+.carry-label { font-size: 0.8rem; color: var(--text-muted); margin-right: 4px; }
+.carry-row .spacer { flex: 1; }
 .btn-carry {
   background: var(--accent);
   color: #fff;
   border: none;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 4px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   cursor: pointer;
   font-family: inherit;
 }
@@ -310,10 +154,122 @@ button.gen:active { transform: scale(0.97); }
   font-size: 0.82rem;
   line-height: 1.5;
   color: var(--text);
-  z-index: 10;
+  z-index: 20;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   white-space: pre-line;
 }
+
+/* 先週 = 青系、今週 = 橙系（色は layout.js の THEMES から --tab に入れる） */
+.tabs { display: flex; gap: 0; }
+.tab-btn {
+  padding: 7px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--tab);
+  border-bottom: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-radius: 6px 6px 0 0;
+  transition: background 0.15s;
+}
+.tab-btn.active {
+  background: var(--tab);
+  border-color: var(--tab);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* スライドと同じ形の面。位置・大きさ・文字の大きさは --u（1インチあたりのpx）から作る */
+.surface-wrap {
+  border: 2px solid var(--tab);
+  border-radius: 0 6px 6px 6px;
+  background: var(--surface);
+  padding: 8px;
+}
+.surface-scroll { position: relative; overflow-x: auto; }
+#surface {
+  position: relative;
+  width: 100%;
+  min-width: 760px;
+  background: #fff;
+  color: #000;
+  overflow: hidden;
+}
+#surface .abs { position: absolute; }
+#surface .box { display: flex; flex-direction: column; overflow-wrap: anywhere; line-height: 1.1; }
+#surface .line { white-space: pre-wrap; }
+#surface .tbl { position: absolute; display: grid; border-left: var(--bw) solid #999; border-top: var(--bw) solid #999; }
+#surface .cell {
+  display: flex;
+  min-width: 0;
+  border-right: var(--bw) solid #999;
+  border-bottom: var(--bw) solid #999;
+  line-height: 1.1;
+}
+#surface .val {
+  width: 100%;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+#surface .ed { overflow: hidden; cursor: text; }
+#surface .ed.num { cursor: pointer; }
+#surface .ed:hover { outline: 2px solid #378ADD; outline-offset: -2px; }
+#surface .ed.sel, #surface .ed:focus-within { outline: 2px solid #185FA5; outline-offset: -2px; }
+#surface .ed:focus-within { overflow: visible; z-index: 3; }
+#surface .ed.over, #surface .ed.over:hover, #surface .ed.over:focus-within { outline: 2px solid #E24B4A; outline-offset: -2px; }
+#surface textarea.val {
+  display: block;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  resize: none;
+  overflow: hidden;
+  box-shadow: none;
+}
+#surface .ed:focus-within textarea.val { background: inherit; }
+
+/* 在室時間・達成度のスライダー */
+#pop {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 300px;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--tab);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+#pop[hidden] { display: none; }
+#pop input[type="range"] { flex: 1; min-width: 0; accent-color: var(--tab); cursor: pointer; padding: 0; }
+#pop input[type="text"] { width: 52px; text-align: center; }
+#pop .unit { font-size: 0.85rem; color: var(--text-muted); min-width: 1ch; }
+
+.note { margin-top: 6px; font-size: 0.85rem; color: var(--danger); min-height: 1.2em; }
+
+.btn-row { display: flex; justify-content: flex-end; margin-top: 8px; gap: 8px; }
+button.gen {
+  background: var(--success);
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+button.gen:hover { background: var(--success-hover); }
+button.gen:active { transform: scale(0.97); }
 
 .status {
   margin-top: 8px;
@@ -363,9 +319,6 @@ button.gen:active { transform: scale(0.97); }
       <label id="lbl-name-en">ローマ字</label>
       <input type="text" id="name-en">
     </div>
-  </div>
-
-  <div class="row">
     <div class="field">
       <label id="lbl-date">ゼミ実施日</label>
       <input type="text" id="base-date" class="date" placeholder="2026/06/17">
@@ -388,13 +341,32 @@ button.gen:active { transform: scale(0.97); }
     </div>
   </div>
 
+  <div class="carry-row">
+    <span class="carry-label" id="carry-label">目標の引き継ぎ:</span>
+    <button class="btn-carry" id="btn-carry-move" type="button" onclick="carryGoals('move')">今週の目標を先週へ移動</button>
+    <button class="btn-carry" id="btn-carry-copy" type="button" onclick="carryGoals('copy')">今週の目標を先週へコピー</button>
+    <button class="btn-help" onclick="toggleHelp(this)" type="button" aria-label="help">?</button>
+    <div class="help-pop" hidden><div id="carry-help-text"></div></div>
+    <span class="spacer"></span>
+  </div>
+
   <div class="tabs">
     <div class="tab-btn active" data-tab="last" id="tab-btn-last">先週（スライド1）</div>
     <div class="tab-btn" data-tab="this" id="tab-btn-this">今週（スライド2）</div>
   </div>
 
-  <div class="tab-content active" id="tab-last"></div>
-  <div class="tab-content" id="tab-this"></div>
+  <div class="surface-wrap" id="surface-wrap">
+    <div class="surface-scroll" id="surface-scroll">
+      <div id="surface"></div>
+      <div id="pop" hidden>
+        <label id="pop-label" for="pop-text"></label>
+        <input type="range" id="pop-range">
+        <input type="text" id="pop-text" inputmode="decimal" autocomplete="off">
+        <span class="unit" id="pop-unit"></span>
+      </div>
+    </div>
+  </div>
+  <div class="note" id="overflow-note"></div>
 
   <div class="btn-row">
     <button class="gen" id="btn-gen" onclick="generate()">出力</button>
@@ -423,6 +395,7 @@ const T = {
     carry_done_copy:"今週の目標を先週へコピーしました",
     carry_help:"時間が1週間進んだ時に使用します。\n先週編集した「今週」の内容は、今週の「先週」になるためです。\n\nどちらも先週欄に今週の内容を入れます。\n違いは今週欄の扱いだけ:\n\n・移動 → 今週欄は空になる\n・コピー → 今週欄は残る\n\n新しい目標を立てるなら「移動」、\n同じ目標を継続するなら「コピー」。",
     app_help:"毎週のゼミ活動報告スライドを自動生成するWebツールです。\n苗字・名前・在室時間・目標・その他取り組みを入力するだけで、テンプレートに合ったPowerPointファイルを出力できます。\n\nインストール不要。URLを開くだけで使えます。\n入力内容は自動保存され、次回起動時に復元されます。",
+    overflow_note:"赤い枠は、文字が多くて枠から出ます",
     generated:"出力完了: {}", err_input:"入力エラー"
   },
   zh: {
@@ -443,6 +416,7 @@ const T = {
     carry_done_copy:"已将本周目标复制到上周",
     carry_help:"时间推进一周时使用。\n上次编辑的「本周」内容，本周将变成「上周」。\n\n两个按钮都会将本周内容放入上周栏。\n区别只在于本周栏的处理:\n\n・移动 → 本周栏清空\n・复制 → 本周栏保留\n\n要制定新目标选「移动」，\n继续相同目标选「复制」。",
     app_help:"自动生成每周组会活动报告幻灯片的Web工具。\n只需输入姓名、在室时间、目标及其他工作内容，即可输出符合模板的PowerPoint文件。\n\n无需安装。打开URL即可使用。\n输入内容自动保存，下次打开时恢复。",
+    overflow_note:"红框表示文字过多，会超出框",
     generated:"输出完成: {}", err_input:"输入错误"
   },
   ko: {
@@ -463,6 +437,7 @@ const T = {
     carry_done_copy:"이번주 목표를 지난주로 복사했습니다",
     carry_help:"시간이 1주일 지났을 때 사용합니다.\n지난번에 편집한 「이번주」 내용이 이번주의 「지난주」가 되기 때문입니다.\n\n두 버튼 모두 지난주 칸에 이번주 내용을 넣습니다.\n차이는 이번주 칸의 처리:\n\n・이동 → 이번주 칸이 비워짐\n・복사 → 이번주 칸이 남음\n\n새로운 목표를 세운다면 「이동」,\n같은 목표를 계속한다면 「복사」。",
     app_help:"매주 세미나 활동보고 슬라이드를 자동 생성하는 웹 도구입니다.\n성・이름・재실시간・목표・기타 작업을 입력하면 템플릿에 맞는 PowerPoint 파일을 출력할 수 있습니다.\n\n설치 불필요. URL을 열기만 하면 됩니다.\n입력 내용은 자동 저장되어 다음 실행 시 복원됩니다.",
+    overflow_note:"빨간 테두리는 글자가 많아 칸을 벗어납니다",
     generated:"출력 완료: {}", err_input:"입력 오류"
   },
   en: {
@@ -483,6 +458,7 @@ const T = {
     carry_done_copy:"Copied this week's goals to last week",
     carry_help:"Use this when one week has passed.\nLast week's \"this week\" content becomes this week's \"last week\".\n\nBoth buttons copy this week's content into the last-week column.\nThe only difference is what happens to the this-week column:\n\n・Move → This-week column is cleared\n・Copy → This-week column stays as-is\n\nChoose \"Move\" to write new goals,\n\"Copy\" to continue the same goals.",
     app_help:"A web tool for automatically generating weekly seminar activity report slides.\nJust enter your name, hours present, goals, and other tasks to produce a PowerPoint file matching the template.\n\nNo installation required. Just open the URL.\nYour input is auto-saved and restored next time you open the app.",
+    overflow_note:"Red outlines: the text is too long and will overflow the cell",
     generated:"Output: {}", err_input:"Input Error"
   }
 };
@@ -491,33 +467,31 @@ let currentLang = 'ja';
 
 function t(key) { return T[currentLang][key]; }
 
+const $ = (id) => document.getElementById(id);
+
 function applyLang() {
   const l = T[currentLang];
-  document.getElementById('title').textContent = l.title;
+  $('title').textContent = l.title;
   document.title = l.title;
-  document.getElementById('lbl-grade').textContent = l.grade;
-  document.getElementById('lbl-name-ja-sei').textContent = l.name_ja_sei;
-  document.getElementById('lbl-name-ja-mei').textContent = l.name_ja_mei;
-  document.getElementById('lbl-name-en').textContent = l.name_en;
-  document.getElementById('lbl-date').textContent = l.base_date;
-  document.getElementById('lbl-fn-fmt').textContent = l.fn_format;
-  document.getElementById('fn-opt-sei').textContent = l.fn_sei;
-  document.getElementById('fn-opt-sei-mei').textContent = l.fn_sei_mei;
-  document.getElementById('lbl-lang').textContent = l.lang;
-  document.getElementById('tab-btn-last').textContent = l.tab_last;
-  document.getElementById('tab-btn-this').textContent = l.tab_this;
-  document.getElementById('btn-gen').textContent = l.btn_gen;
-  document.querySelectorAll('.carry-label').forEach(e => e.textContent = l.carry_label);
-  document.querySelectorAll('.btn-carry-move').forEach(e => e.textContent = l.carry_move);
-  document.querySelectorAll('.btn-carry-copy').forEach(e => e.textContent = l.carry_copy);
-  document.querySelectorAll('.help-text').forEach(e => e.textContent = l.carry_help);
+  $('lbl-grade').textContent = l.grade;
+  $('lbl-name-ja-sei').textContent = l.name_ja_sei;
+  $('lbl-name-ja-mei').textContent = l.name_ja_mei;
+  $('lbl-name-en').textContent = l.name_en;
+  $('lbl-date').textContent = l.base_date;
+  $('lbl-fn-fmt').textContent = l.fn_format;
+  $('fn-opt-sei').textContent = l.fn_sei;
+  $('fn-opt-sei-mei').textContent = l.fn_sei_mei;
+  $('lbl-lang').textContent = l.lang;
+  $('tab-btn-last').textContent = l.tab_last;
+  $('tab-btn-this').textContent = l.tab_this;
+  $('btn-gen').textContent = l.btn_gen;
+  $('carry-label').textContent = l.carry_label;
+  $('btn-carry-move').textContent = l.carry_move;
+  $('btn-carry-copy').textContent = l.carry_copy;
+  $('carry-help-text').textContent = l.carry_help;
   document.querySelectorAll('.app-help-text').forEach(e => e.textContent = l.app_help);
-  document.querySelectorAll('.sec-att-title').forEach(e => e.textContent = l.attendance);
-  document.querySelectorAll('.sec-goal-title').forEach(e => e.textContent = l.goals);
-  document.querySelectorAll('.sec-other-title').forEach(e => e.textContent = l.others);
-  document.querySelectorAll('.th-goal').forEach(e => e.textContent = l.col_goal);
-  document.querySelectorAll('.th-ach').forEach(e => e.textContent = l.col_ach);
-  document.querySelectorAll('.th-sum').forEach(e => e.textContent = l.col_sum);
+  if (popRec) $('pop-label').textContent = popLabel(popRec.kind);
+  updateNote();
 }
 
 // ── Date helpers ──
@@ -530,95 +504,325 @@ function nextTuesday() {
   return d;
 }
 
-async function updateDates() {
-  const { parseDate, weekDates } = await import('./slide.js');
-  const base = parseDate(document.getElementById('base-date').value);
-  if (!base) return;
-  const last = weekDates(base, true);
-  const this_ = weekDates(base, false);
-  document.querySelectorAll('#tab-last .att-date').forEach((el, i) => el.textContent = last[i] || '');
-  document.querySelectorAll('#tab-this .att-date').forEach((el, i) => el.textContent = this_[i] || '');
+// ── データ（面に出す値。画面にだけある状態） ──
+// 各週: h 在室時間7、g 目標4、a 達成度4、s 概要4、o その他4（すべて文字列）
+function blankWeek() {
+  const e = (n) => Array(n).fill('');
+  return { h: e(7), g: e(4), a: e(4), s: e(4), o: e(4) };
+}
+const model = { last: blankWeek(), this: blankWeek() };
+let activeWeek = 'last';
+
+// ── スライドと同じ形の面 ──
+// slide.js / layout.js は init() で読む
+let S = null;
+let L = null;
+
+// pptxgenjs が表のセルに書き出す既定の余白（marL/marR = 91440 EMU, marT/marB = 45720 EMU）と、
+// テキストボックスの既定の内側余白（0.1 x 0.05 インチ）
+const CELL_MARGIN = { x: 0.1, y: 0.05 };
+const BOX_INSET = { x: 0.1, y: 0.05 };
+const FLEX = { top: 'flex-start', middle: 'center', bottom: 'flex-end' };
+const JUSTIFY = { left: 'flex-start', center: 'center', right: 'flex-end' };
+const inch = (v) => `calc(var(--u) * ${v})`;
+const ptpx = (v) => `calc(var(--u) * ${v} / 72)`;
+
+let cells = [];     // 編集できるセル: { el, field, kind, i, text }
+let baseDate = null; // 面に出す基準日（読めた最後のもの）
+const dynamic = {};  // 基準日・氏名で変わる要素
+
+function el(tag, cls, parent) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (parent) parent.appendChild(e);
+  return e;
 }
 
-// ── Build tab content ──
-function buildTab(containerId, prefix) {
-  const container = document.getElementById(containerId);
-  let html = `<div class="section-title sec-att-title">${t('attendance')}</div>`;
-  html += '<div class="att-grid">';
-  for (let i = 0; i < 7; i++) {
-    html += `<div class="att-cell">
-      <div class="att-date">--/--</div>
-      <input type="range" class="att-slider" id="${prefix}-h${i}-r" min="0" max="12" step="1" value="0" oninput="syncFromSlider('${prefix}-h${i}','')">
-      <input type="text" class="att-input" id="${prefix}-h${i}" value="" oninput="syncFromInput('${prefix}-h${i}')">
-    </div>`;
-  }
-  html += '</div>';
-
-  html += `<div class="section-title sec-goal-title">${t('goals')}</div>`;
-  html += `<div class="carry-row">
-    <span class="carry-label">${t('carry_label')}</span>
-    <button class="btn-carry btn-carry-move" onclick="carryGoals('move')">${t('carry_move')}</button>
-    <button class="btn-carry btn-carry-copy" onclick="carryGoals('copy')">${t('carry_copy')}</button>
-    <button class="btn-help" onclick="toggleHelp(this)" type="button" aria-label="help">?</button>
-    <div class="help-pop" hidden><div class="help-text">${t('carry_help')}</div></div>
-  </div>`;
-  html += '<table class="goals-table"><thead><tr>';
-  html += `<th class="col-goal th-goal">${t('col_goal')}</th>`;
-  html += `<th class="col-ach th-ach">${t('col_ach')}</th>`;
-  html += `<th class="col-sum th-sum">${t('col_sum')}</th>`;
-  html += '</tr></thead><tbody>';
-  for (let i = 0; i < 4; i++) {
-    html += '<tr>';
-    html += `<td><textarea id="${prefix}-g${i}"></textarea></td>`;
-    html += `<td><div class="ach-cell">
-      <input type="range" class="ach-slider" id="${prefix}-a${i}-r" min="0" max="100" step="10" value="0" oninput="syncFromSlider('${prefix}-a${i}','%')">
-      <div class="ach-input-wrap">
-        <input type="text" class="ach-input" id="${prefix}-a${i}" value="" oninput="syncFromInput('${prefix}-a${i}')">
-        <span class="ach-unit">%</span>
-      </div>
-    </div></td>`;
-    html += `<td><textarea id="${prefix}-s${i}"></textarea></td>`;
-    html += '</tr>';
-  }
-  html += '</tbody></table>';
-
-  html += `<div class="section-title sec-other-title">${t('others')}</div>`;
-  html += '<table class="others-table"><thead><tr>';
-  html += `<th class="th-sum">${t('col_sum')}</th>`;
-  html += '</tr></thead><tbody>';
-  for (let i = 0; i < 4; i++) {
-    html += `<tr><td><textarea id="${prefix}-o${i}"></textarea></td></tr>`;
-  }
-  html += '</tbody></table>';
-  container.innerHTML = html;
+function place(e, box) {
+  e.style.left = inch(box.x);
+  e.style.top = inch(box.y);
+  e.style.width = inch(box.w);
+  e.style.height = inch(box.h);
 }
 
-// ── Slider ↔ Input sync ──
-// suffix: '' (時間) or '%' — slider operation overwrites input as plain number
-function syncFromSlider(id, suffix) {
-  const r = document.getElementById(id + '-r');
-  const t = document.getElementById(id);
-  if (!r || !t) return;
-  t.value = r.value;
+// 表: spec = layout.js の *_TABLE。rows は [ { cells: [def] } ]、def = { text | kind, fill, color, bold, align }
+function makeTable(parent, spec, rows) {
+  const tbl = el('div', 'tbl', parent);
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
+  place(tbl, { x: spec.box.x, y: spec.box.y, w: sum(spec.colW), h: sum(spec.rowH) });
+  tbl.style.gridTemplateColumns = spec.colW.map(inch).join(' ');
+  tbl.style.gridTemplateRows = spec.rowH.map(inch).join(' ');
+  tbl.style.fontSize = ptpx(spec.fontSize);
+  tbl.style.fontFamily = FONT_STACK;
+  const cellEls = [];
+  rows.forEach((row) => row.forEach((def) => cellEls.push(makeCell(tbl, def))));
+  return cellEls;
 }
-function syncFromInput(id) {
-  const r = document.getElementById(id + '-r');
-  const t = document.getElementById(id);
-  if (!r || !t) return;
-  const num = parseFloat((t.value || '').toString().replace(/[^\d.\-]/g, ''));
+
+function makeCell(tbl, def) {
+  const c = el('div', 'cell', tbl);
+  c.style.padding = `${inch(CELL_MARGIN.y)} ${inch(CELL_MARGIN.x)}`;
+  c.style.alignItems = FLEX[L.CELL.valign];
+  c.style.justifyContent = JUSTIFY[def.align || 'left'];
+  c.style.textAlign = def.align || 'left';
+  if (def.fill) c.style.background = '#' + def.fill;
+  c.style.color = '#' + (def.color || L.COLOR_BLACK);
+  if (def.bold) c.style.fontWeight = '700';
+  if (def.kind) {
+    registerEditable(c, def);
+  } else {
+    el('div', 'val', c).textContent = def.text;
+    if (def.dyn) dynamic[def.dyn] = c.firstChild;
+  }
+  return c;
+}
+
+function registerEditable(c, def) {
+  c.classList.add('ed');
+  const rec = { el: c, kind: def.kind, i: def.i };
+  if (def.kind === 'h' || def.kind === 'a') {
+    c.classList.add('num');
+    const v = el('div', 'val', c);
+    c.tabIndex = 0;
+    c.setAttribute('role', 'button');
+    rec.field = v;
+    c.addEventListener('click', () => openPop(rec));
+    c.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPop(rec); }
+    });
+  } else {
+    const ta = el('textarea', 'val', c);
+    ta.rows = 1;
+    ta.spellcheck = false;
+    ta.setAttribute('aria-label', def.label);
+    rec.field = ta;
+    ta.addEventListener('input', () => {
+      model[activeWeek][rec.kind][rec.i] = ta.value;
+      fit(rec);
+      updateNote();
+    });
+    c.addEventListener('click', () => { if (document.activeElement !== ta) ta.focus(); });
+  }
+  showValue(rec);
+  cells.push(rec);
+}
+
+function showValue(rec) {
+  const v = model[activeWeek][rec.kind][rec.i];
+  if (rec.field.tagName === 'TEXTAREA') rec.field.value = v;
+  else rec.field.textContent = v;
+}
+
+// 文字の高さ（scrollHeight）がセルの内側の高さを超えたら赤枠
+function fit(rec) {
+  const f = rec.field;
+  if (f.tagName === 'TEXTAREA') {
+    f.style.height = 'auto';
+    f.style.height = f.scrollHeight + 'px';
+  }
+  const cs = getComputedStyle(rec.el);
+  const inner = rec.el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const text = f.tagName === 'TEXTAREA' ? f.value : f.textContent;
+  rec.el.classList.toggle('over', text !== '' && f.scrollHeight > inner + 1);
+}
+
+function fitAll() { cells.forEach(fit); updateNote(); }
+
+function updateNote() {
+  $('overflow-note').textContent = cells.some(r => r.el.classList.contains('over')) ? t('overflow_note') : '';
+}
+
+function textBox(parent, box, valign) {
+  const b = el('div', 'abs box', parent);
+  place(b, box);
+  b.style.padding = `${inch(BOX_INSET.y)} ${inch(BOX_INSET.x)}`;
+  b.style.justifyContent = FLEX[valign];
+  b.style.fontFamily = FONT_STACK;
+  return b;
+}
+
+function buildSurface() {
+  const th = L.THEMES[activeWeek];
+  const surface = $('surface');
+  surface.textContent = '';
+  cells = [];
+  closePop();
+  $('surface-wrap').style.setProperty('--tab', '#' + th.accent);
+  const bold = (b) => b ? '700' : '400';
+  const lines = (parent, ...ls) => ls.forEach(([text, f]) => {
+    const d = el('div', 'line', parent);
+    d.textContent = text;
+    d.style.fontSize = ptpx(f.fontSize);
+    d.style.fontWeight = bold(f.bold);
+    d.style.color = '#' + f.color;
+  });
+
+  // 左上の日付と氏名
+  // pptxgenjs の既定（垂直中央）
+  const dl = textBox(surface, L.DATE_LABEL.box, 'middle');
+  dynamic.date = el('div', 'line', dl);
+  dynamic.date.style.fontSize = ptpx(L.DATE_LABEL.fontSize);
+  dynamic.date.style.fontWeight = bold(L.DATE_LABEL.bold);
+  dynamic.date.style.color = '#' + L.COLOR_BLACK;
+  const nb = textBox(surface, L.NAME_BOX.box, 'middle');
+  const nameFont = { fontSize: L.NAME_BOX.fontSize, bold: L.NAME_BOX.bold, color: L.COLOR_BLACK };
+  lines(nb, ['', nameFont], ['', nameFont]);
+  dynamic.nameJa = nb.children[0];
+  dynamic.nameEn = nb.children[1];
+
+  // 在室時間の表
+  const att = L.ATTENDANCE_TABLE;
+  const head = { fill: th.accent, color: L.COLOR_WHITE, bold: L.CELL.headerBold, align: L.CELL.align };
+  const ctr = { align: L.CELL.align };
+  const attRows = [
+    [{ ...head, text: L.TEXT.dateHeader }],
+    [{ ...head, text: L.TEXT.hoursHeader }],
+  ];
+  for (let i = 0; i < L.ROWS.days; i++) {
+    attRows[0].push({ ...ctr, text: '', dyn: 'd' + i });
+    attRows[1].push({ ...ctr, kind: 'h', i });
+  }
+  makeTable(surface, att, attRows);
+
+  // 目標の表の見出し（日本語の行と英語の行）
+  const [ja, en] = S.splitLabel(activeWeek === 'last' ? L.TEXT.lastWeekLabel : L.TEXT.thisWeekLabel);
+  const sl = textBox(surface, L.SLIDE_LABEL.box, L.LABEL_VALIGN);
+  lines(sl, [ja, L.HEADING.ja], [en, L.HEADING.en]);
+
+  // 目標の表
+  const gt = L.GOALS_TABLE;
+  const goalRows = [[
+    { ...head, text: L.TEXT.goalHeader },
+    { ...head, text: L.TEXT.achievementHeader },
+    { ...head, text: L.TEXT.summaryHeader },
+  ]];
+  for (let i = 0; i < L.ROWS.goals; i++) {
+    const fill = i % 2 === 0 ? th.bandDark : th.bandLight;
+    goalRows.push([
+      { fill, kind: 'g', i, label: L.TEXT.goalHeader },
+      { fill, kind: 'a', i, align: L.CELL.align },
+      { fill, kind: 's', i, label: L.TEXT.summaryHeader },
+    ]);
+  }
+  makeTable(surface, gt, goalRows);
+
+  // その他取り組むこと
+  const ol = textBox(surface, L.OTHERS_LABEL.box, L.LABEL_VALIGN);
+  lines(ol, [L.TEXT.othersLabel, { fontSize: L.OTHERS_LABEL.fontSize, bold: false, color: L.COLOR_LABEL }]);
+  ol.firstChild.style.whiteSpace = 'pre-line';
+  const ot = L.OTHERS_TABLE;
+  const otherRows = [[{ fill: L.ACCENT3, color: L.COLOR_WHITE, bold: L.CELL.headerBold, align: L.CELL.align, text: L.TEXT.summaryHeader }]];
+  for (let i = 0; i < L.ROWS.others; i++) {
+    otherRows.push([{ fill: i % 2 === 0 ? L.BAND_GREEN_DARK : L.BAND_GREEN_LIGHT, kind: 'o', i, label: L.TEXT.othersLabel.split('\n')[0] }]);
+  }
+  makeTable(surface, ot, otherRows);
+
+  refreshStatic();
+  syncScale();
+}
+
+// 基準日・氏名の変更を面に出す
+function refreshStatic() {
+  if (!dynamic.date) return;
+  const base = S.parseDate($('base-date').value);
+  if (base) baseDate = base;
+  if (baseDate) {
+    dynamic.date.textContent = S.fmtMD(baseDate);
+    const dates = S.weekDates(baseDate, activeWeek === 'last');
+    for (let i = 0; i < L.ROWS.days; i++) dynamic['d' + i].textContent = dates[i] || '';
+  }
+  dynamic.nameJa.textContent = $('name-ja-sei').value.trim() + $('name-ja-mei').value.trim();
+  dynamic.nameEn.textContent = $('name-en').value.trim();
+}
+
+// 縮尺 s = 面の幅(px) ÷ 13.333（インチ → px）
+function syncScale() {
+  const surface = $('surface');
+  const u = surface.clientWidth / 13.333;
+  surface.style.setProperty('--u', u + 'px');
+  surface.style.setProperty('--bw', Math.max(1, L.BORDER.pt / 72 * u) + 'px');
+  surface.style.height = inch(7.5);
+  fitAll();
+}
+
+// ── 在室時間・達成度: 押すとスライダー（数字を直接打つこともできる） ──
+const SLIDERS = {
+  h: { min: 0, max: 12, step: 1, unit: 'h' },
+  a: { min: 0, max: 100, step: 10, unit: '%' },
+};
+let popRec = null;
+
+function popLabel(kind) { return kind === 'h' ? t('attendance') : t('col_ach'); }
+
+function openPop(rec) {
+  closePop();
+  popRec = rec;
+  const cfg = SLIDERS[rec.kind];
+  const r = $('pop-range');
+  r.min = cfg.min; r.max = cfg.max; r.step = cfg.step;
+  $('pop-label').textContent = popLabel(rec.kind);
+  $('pop-unit').textContent = cfg.unit;
+  const tx = $('pop-text');
+  tx.value = model[activeWeek][rec.kind][rec.i];
+  syncFromInput(r, tx);
+  rec.el.classList.add('sel');
+  $('pop').hidden = false;
+  const host = $('surface-scroll').getBoundingClientRect();
+  const c = rec.el.getBoundingClientRect();
+  const pop = $('pop');
+  const left = Math.min(c.left - host.left + $('surface-scroll').scrollLeft, $('surface-scroll').scrollWidth - pop.offsetWidth);
+  const below = c.bottom - host.top + 4;
+  pop.style.left = Math.max(0, left) + 'px';
+  pop.style.top = (below + pop.offsetHeight > $('surface').offsetHeight ? c.top - host.top - pop.offsetHeight - 4 : below) + 'px';
+  tx.focus();
+  tx.select();
+}
+
+function closePop() {
+  if (popRec) popRec.el.classList.remove('sel');
+  popRec = null;
+  $('pop').hidden = true;
+}
+
+// 直接打った値: 丸めない・範囲外も文字のまま持つ・スライダー側だけ範囲に収める
+function syncFromInput(r, tx) {
+  const num = parseFloat((tx.value || '').toString().replace(/[^\d.\-]/g, ''));
   if (!isNaN(num)) {
-    const clamped = Math.max(parseFloat(r.min), Math.min(parseFloat(r.max), num));
-    r.value = clamped;
+    r.value = Math.max(parseFloat(r.min), Math.min(parseFloat(r.max), num));
+  } else {
+    r.value = 0;
   }
 }
+
+function setNumeric(value) {
+  model[activeWeek][popRec.kind][popRec.i] = value;
+  showValue(popRec);
+  fit(popRec);
+  updateNote();
+}
+
+$('pop-range').addEventListener('input', (e) => {
+  $('pop-text').value = e.target.value;
+  setNumeric(e.target.value);
+});
+$('pop-text').addEventListener('input', (e) => {
+  syncFromInput($('pop-range'), e.target);
+  setNumeric(e.target.value);
+});
+$('pop').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' || e.key === 'Enter') { const r = popRec; closePop(); if (r) r.el.focus(); }
+});
+document.addEventListener('mousedown', (e) => {
+  if (popRec && !e.target.closest('#pop') && !e.target.closest('.ed.num')) closePop();
+});
 
 // ── Tabs ──
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    if (!L) return;
+    activeWeek = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    buildSurface();
   });
 });
 
@@ -627,33 +831,33 @@ const STORAGE_KEY = 'pptx_gen_autosave';
 
 function collectData() {
   return {
-    grade: document.getElementById('grade').value.trim(),
-    name_ja_sei: document.getElementById('name-ja-sei').value.trim(),
-    name_ja_mei: document.getElementById('name-ja-mei').value.trim(),
-    name_en: document.getElementById('name-en').value.trim(),
-    date: document.getElementById('base-date').value.trim(),
-    fn_format: document.getElementById('fn-format').value,
+    grade: $('grade').value.trim(),
+    name_ja_sei: $('name-ja-sei').value.trim(),
+    name_ja_mei: $('name-ja-mei').value.trim(),
+    name_en: $('name-en').value.trim(),
+    date: $('base-date').value.trim(),
+    fn_format: $('fn-format').value,
     lang: currentLang,
-    last_week: collectWeek('lw'),
-    this_week: collectWeek('tw'),
+    last_week: collectWeek('last'),
+    this_week: collectWeek('this'),
   };
 }
 
-function collectWeek(prefix) {
-  const hours = [];
-  for (let i = 0; i < 7; i++) hours.push(document.getElementById(`${prefix}-h${i}`).value.trim());
+function collectWeek(key) {
+  const w = model[key];
+  const hours = w.h.map(v => v.trim());
   const goals = [];
   for (let i = 0; i < 4; i++) {
-    const g = document.getElementById(`${prefix}-g${i}`).value.trim();
+    const g = w.g[i].trim();
     if (g) goals.push({
       goal: g,
-      achievement: document.getElementById(`${prefix}-a${i}`).value.trim(),
-      summary: document.getElementById(`${prefix}-s${i}`).value.trim()
+      achievement: w.a[i].trim(),
+      summary: w.s[i].trim()
     });
   }
   const others = [];
   for (let i = 0; i < 4; i++) {
-    const s = document.getElementById(`${prefix}-o${i}`).value.trim();
+    const s = w.o[i].trim();
     if (s) others.push({ summary: s });
   }
   return { hours, goals, others };
@@ -668,56 +872,50 @@ function autoLoad() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const data = JSON.parse(raw);
-    if (data.grade) document.getElementById('grade').value = data.grade;
+    if (data.grade) $('grade').value = data.grade;
 
     // name fields: support old format (name_ja as single field)
     if (data.name_ja_sei !== undefined) {
-      document.getElementById('name-ja-sei').value = data.name_ja_sei;
-      document.getElementById('name-ja-mei').value = data.name_ja_mei || '';
+      $('name-ja-sei').value = data.name_ja_sei;
+      $('name-ja-mei').value = data.name_ja_mei || '';
     } else if (data.name_ja) {
       const parts = data.name_ja.trim().split(/\s+/);
-      document.getElementById('name-ja-sei').value = parts[0] || '';
-      document.getElementById('name-ja-mei').value = parts.slice(1).join('') || '';
+      $('name-ja-sei').value = parts[0] || '';
+      $('name-ja-mei').value = parts.slice(1).join('') || '';
     }
 
-    if (data.name_en) document.getElementById('name-en').value = data.name_en;
-    if (data.fn_format) document.getElementById('fn-format').value = data.fn_format;
+    if (data.name_en) $('name-en').value = data.name_en;
+    if (data.fn_format) $('fn-format').value = data.fn_format;
     if (data.lang && T[data.lang]) {
       currentLang = data.lang;
-      document.getElementById('lang-select').value = data.lang;
+      $('lang-select').value = data.lang;
       applyLang();
     }
-    if (data.last_week) fillWeek('lw', data.last_week);
-    if (data.this_week) fillWeek('tw', data.this_week);
+    if (data.last_week) fillWeek('last', data.last_week);
+    if (data.this_week) fillWeek('this', data.this_week);
     setStatus('前回の入力を復元しました', '');
   } catch(e) {}
 }
 
-function fillWeek(prefix, sec) {
+function fillWeek(key, sec) {
+  const s = (v) => v == null ? '' : String(v);
+  const w = blankWeek();
   const hours = sec.hours || [];
-  for (let i = 0; i < 7; i++) {
-    const el = document.getElementById(`${prefix}-h${i}`);
-    if (el) {
-      el.value = hours[i] || '';
-      syncFromInput(`${prefix}-h${i}`);
-    }
-  }
+  for (let i = 0; i < 7; i++) w.h[i] = s(hours[i]);
   const goals = sec.goals || [];
   for (let i = 0; i < 4; i++) {
     const g = goals[i] || {};
-    document.getElementById(`${prefix}-g${i}`).value = g.goal || '';
-    document.getElementById(`${prefix}-a${i}`).value = g.achievement || '';
-    syncFromInput(`${prefix}-a${i}`);
-    document.getElementById(`${prefix}-s${i}`).value = g.summary || '';
+    w.g[i] = s(g.goal);
+    w.a[i] = s(g.achievement);
+    w.s[i] = s(g.summary);
   }
   const others = sec.others || [];
-  for (let i = 0; i < 4; i++) {
-    document.getElementById(`${prefix}-o${i}`).value = (others[i] || {}).summary || '';
-  }
+  for (let i = 0; i < 4; i++) w.o[i] = s((others[i] || {}).summary);
+  model[key] = w;
 }
 
 function setStatus(msg, cls) {
-  const el = document.getElementById('status');
+  const el = $('status');
   el.textContent = msg;
   el.className = 'status' + (cls ? ' ' + cls : '');
 }
@@ -737,10 +935,7 @@ document.addEventListener('click', (e) => {
 
 // ── Carry over goals ──
 function hasGoalsInLastWeek() {
-  for (let i = 0; i < 4; i++) {
-    if (document.getElementById(`lw-g${i}`).value.trim()) return true;
-  }
-  return false;
+  return model.last.g.some(g => g.trim());
 }
 
 function carryGoals(mode) {
@@ -748,23 +943,21 @@ function carryGoals(mode) {
     if (!confirm(t('carry_confirm'))) return;
   }
   for (let i = 0; i < 4; i++) {
-    document.getElementById(`lw-g${i}`).value = document.getElementById(`tw-g${i}`).value;
-    document.getElementById(`lw-a${i}`).value = document.getElementById(`tw-a${i}`).value;
-    document.getElementById(`lw-s${i}`).value = document.getElementById(`tw-s${i}`).value;
-    syncFromInput(`lw-a${i}`);
+    model.last.g[i] = model.this.g[i];
+    model.last.a[i] = model.this.a[i];
+    model.last.s[i] = model.this.s[i];
   }
   if (mode === 'move') {
     for (let i = 0; i < 4; i++) {
-      document.getElementById(`tw-g${i}`).value = '';
-      document.getElementById(`tw-a${i}`).value = '';
-      document.getElementById(`tw-s${i}`).value = '';
-      const r = document.getElementById(`tw-a${i}-r`);
-      if (r) r.value = 0;
+      model.this.g[i] = '';
+      model.this.a[i] = '';
+      model.this.s[i] = '';
     }
     setStatus(t('carry_done_move'), 'ok');
   } else {
     setStatus(t('carry_done_copy'), 'ok');
   }
+  if (L) buildSurface();
   autoSave();
 }
 
@@ -790,39 +983,52 @@ async function generate() {
 }
 
 // ── Grade picker → input ──
-document.getElementById('grade-select').addEventListener('change', (e) => {
+$('grade-select').addEventListener('change', (e) => {
   if (e.target.value) {
-    document.getElementById('grade').value = e.target.value;
+    $('grade').value = e.target.value;
     autoSave();
   }
   e.target.value = ''; // reset picker so the same item can be chosen again
 });
 
 // ── Lang change ──
-document.getElementById('lang-select').addEventListener('change', (e) => {
+$('lang-select').addEventListener('change', (e) => {
   currentLang = e.target.value;
   applyLang();
   autoSave();
 });
 
-// ── Date change ──
-document.getElementById('base-date').addEventListener('change', updateDates);
-document.getElementById('base-date').addEventListener('blur', updateDates);
+// ── 基準日・氏名の変更 ──
+for (const id of ['base-date', 'name-ja-sei', 'name-ja-mei', 'name-en']) {
+  $(id).addEventListener('input', refreshStatic);
+}
+$('base-date').addEventListener('change', refreshStatic);
+$('base-date').addEventListener('blur', refreshStatic);
 
 // ── Auto-save on unload ──
 window.addEventListener('beforeunload', autoSave);
 
 // ── Init ──
-buildTab('tab-last', 'lw');
-buildTab('tab-this', 'tw');
+let FONT_STACK = '';
 
-applyLang();
-autoLoad();
+async function init() {
+  S = await import('./slide.js');
+  L = await import('./layout.js');
+  FONT_STACK = `'${L.FONT}', 'YuGothic', 'Meiryo', sans-serif`;
 
-import('./slide.js').then(({ fmtDate }) => {
-  document.getElementById('base-date').value = fmtDate(nextTuesday());
-  return updateDates();
-}).catch(err => setStatus(String(err), 'err'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.style.setProperty('--tab', '#' + L.THEMES[b.dataset.tab].accent));
+
+  applyLang();
+  autoLoad();
+  // 基準日は自動保存から戻さず、起動のたびに次の火曜にする
+  $('base-date').value = S.fmtDate(nextTuesday());
+
+  buildSurface();
+  new ResizeObserver(() => syncScale()).observe($('surface'));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+}
+
+init().catch(err => setStatus(String(err), 'err'));
 </script>
 </body>
 </html>
