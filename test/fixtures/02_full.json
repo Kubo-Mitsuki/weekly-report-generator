@@ -1,0 +1,103 @@
+{
+  "grade": "B4",
+  "name_ja_sei": "山田",
+  "name_ja_mei": "太郎",
+  "name_en": "Yamada Taro",
+  "date": "2026/10/20",
+  "fn_format": "sei",
+  "lang": "ja",
+  "last_week": {
+    "hours": [
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "goals": [
+      {
+        "goal": "先行研究の調査",
+        "achievement": "80%",
+        "summary": "論文を5本読んだ"
+      },
+      {
+        "goal": "実験環境の構築",
+        "achievement": "50%",
+        "summary": "ライブラリの導入まで完了"
+      },
+      {
+        "goal": "データ収集",
+        "achievement": "100%",
+        "summary": "予定していた全データを取得"
+      },
+      {
+        "goal": "発表資料の作成",
+        "achievement": "30%",
+        "summary": "構成案のみ作成"
+      }
+    ],
+    "others": [
+      {
+        "summary": "輪講の準備"
+      },
+      {
+        "summary": "研究室の備品整理"
+      },
+      {
+        "summary": "学会の参加登録"
+      },
+      {
+        "summary": "英語論文の読み合わせ"
+      }
+    ]
+  },
+  "this_week": {
+    "hours": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "goals": [
+      {
+        "goal": "先行研究の調査",
+        "achievement": "80%",
+        "summary": "論文を5本読んだ"
+      },
+      {
+        "goal": "実験環境の構築",
+        "achievement": "50%",
+        "summary": "ライブラリの導入まで完了"
+      },
+      {
+        "goal": "データ収集",
+        "achievement": "100%",
+        "summary": "予定していた全データを取得"
+      },
+      {
+        "goal": "発表資料の作成",
+        "achievement": "30%",
+        "summary": "構成案のみ作成"
+      }
+    ],
+    "others": [
+      {
+        "summary": "輪講の準備"
+      },
+      {
+        "summary": "研究室の備品整理"
+      },
+      {
+        "summary": "学会の参加登録"
+      },
+      {
+        "summary": "英語論文の読み合わせ"
+      }
+    ]
+  }
+}

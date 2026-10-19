@@ -1,0 +1,17 @@
+{
+  "name": "weekly-report-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "研究室の週次活動報告スライド（.pptx）を作るツール",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "pptxgenjs": "3.12.0"
+  },
+  "devDependencies": {
+    "jszip": "^3.10.1"
+  }
+}

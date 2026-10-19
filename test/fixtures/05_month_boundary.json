@@ -1,0 +1,45 @@
+{
+  "grade": "B4",
+  "name_ja_sei": "山田",
+  "name_ja_mei": "太郎",
+  "name_en": "Yamada Taro",
+  "date": "2026/10/27",
+  "fn_format": "sei",
+  "lang": "ja",
+  "last_week": {
+    "hours": [
+      "1",
+      "",
+      "",
+      "2",
+      "",
+      "",
+      "3"
+    ],
+    "goals": [
+      {
+        "goal": "月またぎの確認",
+        "achievement": "40%",
+        "summary": "10/20〜10/26"
+      }
+    ],
+    "others": []
+  },
+  "this_week": {
+    "hours": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "goals": [],
+    "others": [
+      {
+        "summary": "来月の予定を立てる"
+      }
+    ]
+  }
+}

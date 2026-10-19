@@ -1,0 +1,51 @@
+{
+  "grade": "B4",
+  "name_ja_sei": "山田",
+  "name_ja_mei": "太郎",
+  "name_en": "Yamada Taro",
+  "date": "2026/10/20",
+  "fn_format": "sei_mei",
+  "lang": "en",
+  "last_week": {
+    "hours": [
+      "2",
+      "",
+      "4",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "goals": [
+      {
+        "goal": "Read related papers",
+        "achievement": "70%",
+        "summary": "Finished 4 papers"
+      }
+    ],
+    "others": [
+      {
+        "summary": "Prepare for the journal club"
+      }
+    ]
+  },
+  "this_week": {
+    "hours": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "goals": [
+      {
+        "goal": "Set up the experiment",
+        "achievement": "",
+        "summary": ""
+      }
+    ],
+    "others": []
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "grade": "B4",
+  "name_ja_sei": "山田",
+  "name_ja_mei": "太郎",
+  "name_en": "Yamada Taro",
+  "date": "2026-10-20",
+  "fn_format": "sei",
+  "lang": "ja",
+  "last_week": {
+    "hours": [
+      "2",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "goals": [],
+    "others": []
+  },
+  "this_week": {
+    "hours": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "goals": [],
+    "others": []
+  }
+}
